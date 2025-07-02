@@ -1,0 +1,1 @@
+# pwsh-scoop-migration
