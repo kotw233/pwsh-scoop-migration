@@ -1,0 +1,5 @@
+#
+
+function lg {
+    lazygit @args
+}
