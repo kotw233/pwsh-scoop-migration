@@ -10,6 +10,10 @@ if ($host.Name -eq "ConsoleHost") {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 }
 
+function Myip {
+    curl myip.ipip.net
+}
+
 function Test-PathEx {
     param(
         [string]$path

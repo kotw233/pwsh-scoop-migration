@@ -3,48 +3,85 @@
 #   1、安装 Scoop 到 D:\Scoop，并恢复应用和 bucket
 #   2、配置 Scoop 别名等
 
-$SCOOP_PATH = "D:/Scoop"
-$JsonFile = Join-Path $PSScriptRoot "../installed_apps.json"
+# 设置 Scoop 安装路径
+# $SCOOP_PATH = "D:/Scoop"
 
-# 设置 SCOOP 环境变量
-$env:SCOOP = $SCOOP_PATH
-
-# 如果未安装 Scoop，则安装
-if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
-    Write-Host "📦 正在安装 Scoop 到 $SCOOP_PATH" -ForegroundColor Cyan
-    if (-not (Test-Path $SCOOP_PATH)) { New-Item -Path $SCOOP_PATH -ItemType Directory -Force | Out-Null }
-    irm get.scoop.sh | iex
+function Test-ScoopInstalled {
+    return (Get-Command scoop -ErrorAction SilentlyContinue) -ne $null
 }
 
-# 如果是首次加载且存在 installed_apps.json，则恢复状态
-if (Test-Path $JsonFile) {
-    Write-Host "🔄 正在导入 Scoop 应用列表..." -ForegroundColor Cyan
+# function Install-Scoop {
+#     param(
+#         [string]$InstallPath = $SCOOP_PATH
+#     )
 
-    try {
-        $json = Get-Content $JsonFile -Raw | ConvertFrom-Json
+#     Write-Host "📦 正在安装 Scoop 到: $InstallPath" -ForegroundColor Cyan
 
-        # 添加 buckets
-        if ($json.buckets) {
-            foreach ($bucket in $json.buckets) {
-                Write-Host "📁 添加 bucket: $bucket"
-                scoop bucket add $bucket 2>$null
-            }
-        }
+#     # 创建安装目录（如果不存在）
+#     if (-not (Test-Path $InstallPath)) {
+#         New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+#     }
 
-        # 安装 apps
-        if ($json.apps) {
-            $apps = $json.apps.PSObject.Properties.Name
-            if ($apps.Count -gt 0) {
-                Write-Host "🎁 安装应用程序: $($apps -join ', ')"
-                scoop install $apps
-            }
-        }
-    } catch {
-        Write-Warning "⚠️ 导入失败: $_"
-    }
-} else {
-    Write-Host "📎 未找到 installed_apps.json，跳过恢复应用"
-}
+#     # 设置环境变量
+#     $env:SCOOP = $InstallPath
+
+#     # 下载并安装 Scoop
+#     irm get.scoop.sh | iex
+# }
+
+# function Restore-ScoopState {
+#     param(
+#         [string]$JsonFile = "installed_apps.json"
+#     )
+
+#     if (-not (Test-Path $JsonFile)) {
+#         Write-Warning "⚠️ 未找到 '$JsonFile'，跳过 Scoop 应用恢复。"
+#         return
+#     }
+
+#     Write-Host "🔄 正在导入 Scoop 状态..." -ForegroundColor Cyan
+
+#     try {
+#         # 检查 JSON 是否合法
+#         $content = Get-Content $JsonFile -Raw -ErrorAction Stop
+#         $json = ConvertFrom-Json $content -ErrorAction Stop
+
+#         # 添加 buckets
+#         if ($json.buckets) {
+#             foreach ($bucket in $json.buckets) {
+#                 Write-Host "📁 添加 bucket: $bucket" -ForegroundColor Green
+#                 scoop bucket add $bucket
+#             }
+#         }
+
+#         # 安装 apps
+#         if ($json.apps) {
+#             $apps = $json.apps.PSObject.Properties.Name
+#             if ($apps.Count -gt 0) {
+#                 Write-Host "🎁 安装应用程序: $($apps -join ', ')" -ForegroundColor Green
+#                 scoop install $apps
+#             }
+#         }
+#     } catch {
+#         Write-Error "❌ 导入 Scoop 状态失败: $_"
+#     }
+# }
+
+# # ========== 主流程开始 ==========
+
+# # 设置 SCOOP 环境变量
+# $env:SCOOP = $SCOOP_PATH
+
+# # 如果 Scoop 没有安装，则安装它
+# if (-not (Test-ScoopInstalled)) {
+#     Install-Scoop -InstallPath $SCOOP_PATH
+# } else {
+#     Write-Host "✅ Scoop 已安装在: $env:SCOOP"
+# }
+
+# # 恢复 Scoop 状态（bucket + apps）
+# $installJson = Join-Path $PSScriptRoot "../installed_apps.json"
+# Restore-ScoopState -JsonFile $installJson
 
 # Scoop别名创建脚本
 
