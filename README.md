@@ -1,1 +1,206 @@
-# pwsh-scoop-migration
+# pwshcfg - PowerShell 可复制工作环境
+
+一键部署 PowerShell 开发环境，换新电脑也能快速恢复工作状态。
+
+## 快速开始
+
+### 新电脑部署
+
+**准备工作：**
+1. 开代理软件，确保端口 10809 可用
+2. 安装 Git（如果没有）
+3. 安装 PowerShell 7（可选）
+
+**部署步骤：**
+```powershell
+# 1. 克隆仓库
+git clone <your-repo> pwshcfg
+cd pwshcfg
+
+# 2. 双击 deploy.bat 或执行
+.\deploy.ps1
+```
+
+### 日常使用
+
+```powershell
+# 导出当前 Scoop 配置
+.\export.bat
+
+# 部署最新配置
+.\deploy.bat
+```
+
+## 目录结构
+
+```
+pwshcfg/
+├── deploy.bat                    # 双击部署
+├── deploy.ps1                    # 部署脚本
+├── export.bat                    # 双击导出配置
+├── export-scoop.ps1              # 导出 Scoop 配置
+├── Microsoft.PowerShell_profile.ps1  # PowerShell 主配置
+├── buckets.txt                   # Scoop Bucket 列表
+├── installed_apps.json           # 已安装应用列表
+├── _scripts/                     # 功能脚本（自动加载）
+│   ├── Utils.ps1                 # 基础工具函数
+│   ├── Android.ps1               # Android 工具
+│   ├── proxy.ps1                 # 代理开关
+│   ├── encoding.ps1              # Base64 编解码
+│   ├── hash.ps1                  # 文件哈希
+│   ├── lsd.ps1                   # 目录美化
+│   ├── start.ps1                 # 快捷启动
+│   ├── scoop.ps1                 # Scoop 管理
+│   ├── dotnet.ps1                # .NET 补全
+│   ├── rust.ps1                  # Rust 环境
+│   └── python.ps1                # Python 环境
+├── _modules/                     # 模块（懒加载）
+│   ├── android.ps1               # Android 工具集
+│   ├── Test-Emulator.ps1         # 模拟器测试
+│   ├── Test-Lib.ps1              # APK 安全检测
+│   └── Test-RebuiltApk.ps1       # APK 重打包测试
+└── README.md
+```
+
+## 部署流程
+
+```
+deploy.bat
+    │
+    ▼
+┌─────────────────────────┐
+│ 1. 安装 Scoop（如果需要）│
+│   自动设置代理 10809     │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│ 2. 恢复 Buckets          │
+│   读取 buckets.txt       │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│ 3. 恢复已安装应用        │
+│   读取 installed_apps.json│
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│ 4. 部署 PowerShell 配置  │
+│   ├── 备份旧配置         │
+│   ├── 复制新 profile     │
+│   ├── 复制 _scripts/     │
+│   └── 复制 _modules/     │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│ 5. 部署 Starship 主题    │
+│   应用 pure-preset       │
+└───────────┬─────────────┘
+            │
+            ▼
+          完成
+```
+
+## 命令列表
+
+### 基础工具
+
+| 别名 | 说明 |
+|------|------|
+| `myip` | 查询外网 IP |
+| `ex` / `owp` | 资源管理器打开当前目录 |
+| `b64e` | Base64 编码 |
+| `b64d` | Base64 解码 |
+| `md5` | MD5 哈希 |
+| `sha1` | SHA1 哈希 |
+| `sha256` | SHA256 哈希 |
+| `proxy` | 启用代理 |
+| `unproxy` | 禁用代理 |
+| `cmds` | 列出所有命令 |
+
+### 目录列表
+
+| 别名 | 说明 |
+|------|------|
+| `ll` | 长列表 |
+| `la` | 完整列表 |
+| `l` | 简洁列表 |
+
+### 版本切换
+
+| 别名 | 说明 |
+|------|------|
+| `jv 17` | 切换 Java 17 |
+| `jv 8` | 切换 Java 8 |
+| `pv 312` | 切换 Python 3.12 |
+| `pv 38` | 切换 Python 3.8 |
+| `py-list` | 列出已安装 Python |
+| `jdk-list` | 列出已安装 JDK |
+
+### 快捷启动
+
+| 别名 | 说明 |
+|------|------|
+| `burp` | 启动 Burp Suite |
+| `vs` | 启动 VS Code |
+| `sudo` | 管理员提权 |
+| `sand` | 启动 Sandboxie |
+| `lg` | lazygit |
+
+### Android 工具（懒加载）
+
+| 命令 | 说明 |
+|------|------|
+| `Get-ApkInfo` | 获取 APK 信息 |
+| `Get-ApkSignInfo` | 获取 APK 签名 |
+| `Decompile-Apk` | 反编译 APK |
+| `Recompile-Apk` | 重编译 APK |
+| `Sign-Apk` | 签名 APK |
+| `Test-ApkLib` | APK 安全检测 |
+| `appinfo` | APK 混淆检测 |
+
+## 新电脑需要手动配置
+
+部署完成后会提示：
+
+```powershell
+# APK 混淆检测工具路径
+$Env:APPOBFUSC_TOOL = "D:\SecTools\...\appinfo.py"
+
+# 模拟器路径
+$Env:EMULATOR_PATH = "D:\Soft\...\dnplayer.exe"
+
+# 永久保存
+[Environment]::SetEnvironmentVariable('变量名', '值', 'User')
+```
+
+## 更新配置
+
+```powershell
+# 1. 修改 _scripts/ 或 _modules/ 中的脚本
+# 2. 导出 Scoop 配置
+.\export.bat
+
+# 3. 提交到 Git
+git add -A
+git commit -m "update"
+git push
+
+# 4. 新电脑同步
+git pull
+.\deploy.bat
+```
+
+## 故障排除
+
+### Scoop 安装失败
+确保代理已开启（端口 10809）
+
+### 命令不生效
+重启 PowerShell 或执行 `. $PROFILE`
+
+### 查看所有命令
+执行 `cmds`

@@ -1,21 +1,35 @@
-#start-alias
+# start.ps1 - 快捷启动命令
 
+# 获取 scoop 应用路径
+function Get-ScoopAppPath {
+    param([string]$AppName)
+    $scoopPath = if ($env:SCOOP) { $env:SCOOP } else { "$env:USERPROFILE\scoop" }
+    return "$scoopPath\apps\$AppName\current"
+}
+
+# 启动 Burp Suite
 function Start-Burp {
-    $vbsPath = "D:\Program_base\Scoop\apps\burp-suite-pro-np\current\BurpSuitePro.vbs"
+    $vbsPath = Join-Path (Get-ScoopAppPath "burp-suite-pro-np") "BurpSuitePro.vbs"
     if (Test-Path $vbsPath) {
         Start-Process wscript.exe -ArgumentList "`"$vbsPath`""
     } else {
-        Write-Host "❌ Burp Suite VBS 脚本未找到" -ForegroundColor Red
+        Write-Host "✗ Burp Suite 未安装或路径错误" -ForegroundColor Red
     }
 }
 
-Set-Alias burp Start-Burp
 
-#Set-Alias
-Set-Alias vs code
-Set-Alias s history
-Set-Alias sudo gsudo
-Set-Alias sand sandboxie-start
-Set-Alias v2 v2rayN
-Set-Alias hibit "D:\Program_base\Scoop\apps\hibit-uninstaller\current\HiBitUninstaller-Portable.exe"
-Set-Alias openArk "D:\Program_base\Scoop\apps\openark\current\OpenArk.exe"
+
+# 动态获取 scoop 应用路径的启动函数
+function Start-ScoopApp {
+    param([Parameter(Mandatory)][string]$AppName)
+    $appPath = Get-ScoopAppPath $AppName
+    $exe = Get-ChildItem "$appPath\*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($exe) {
+        Start-Process $exe.FullName
+    } else {
+        Write-Host "✗ $AppName 未找到可执行文件" -ForegroundColor Red
+    }
+}
+
+
+

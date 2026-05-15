@@ -1,6 +1,27 @@
-# 忽略所有日志文件
+# 敏感信息
+*.key
+*.pem
+*.p12
+.secrets
+credentials.json
+api_keys.json
+
+# 日志文件
 *.log
 
-# 忽略临时文件
+# 临时文件
 temp/
 *.tmp
+*.bak*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# PowerShell
+*.psrepl

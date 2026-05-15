@@ -1,0 +1,8 @@
+main
+extras
+versions
+sysinternals
+nerd-fonts
+nonportable
+java
+retools
