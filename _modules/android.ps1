@@ -91,6 +91,10 @@ function Get-AppObfuscInfo {
     & python $toolPath (Resolve-Path -Path $Path)
 }
 
+Set-Alias -Name apkinfo -Value Get-ApkInfo -Scope Global
+Set-Alias -Name apksign -Value Get-ApkSignInfo -Scope Global
+Set-Alias -Name apklibs -Value Get-ApkLibs -Scope Global
+Set-Alias -Name apkprotect -Value Get-ApkProtectInfo -Scope Global
 Set-Alias -Name appinfo -Value Get-AppObfuscInfo -Scope Global
 
 # ========== 反编译/重编译/签名 ==========
