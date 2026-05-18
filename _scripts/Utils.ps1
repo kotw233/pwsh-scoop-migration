@@ -42,6 +42,13 @@ function Show-AllPaths {
         ForEach-Object { $i = 1 } { "[CUR] $i`: $_"; $i++ }
 }
 
+function Get-EnvVars {
+    param([string]$Filter)
+    $vars = Get-ChildItem Env:
+    if ($Filter) { $vars = $vars | Where-Object { $_.Name -like "*$Filter*" } }
+    $vars | Sort-Object Name | Format-Table -AutoSize
+}
+
 function Get-ExternalIP { curl myip.ipip.net }
 
 function Open-Explorer { explorer (pwd).Path }
@@ -104,6 +111,7 @@ $aliasMap = @{
     "skc"       = "Invoke-ScoopCleanup"
     "skca"      = "Invoke-ScoopCache"
     "cmds"      = "Get-MyCommands"
+    "env"       = "Get-EnvVars"
 }
 
 foreach ($alias in $aliasMap.Keys) {
@@ -158,6 +166,7 @@ function Get-MyCommands {
         @{ Cmd = "sandboxie-start"; Alias = "sand"; Desc = "启动 Sandboxie" },
         @{ Cmd = "lazygit"; Alias = "lg"; Desc = "lazygit" },
         @{ Cmd = "Get-MyCommands"; Alias = "cmds"; Desc = "列出所有命令" },
+        @{ Cmd = "Get-EnvVars"; Alias = "env"; Desc = "列出环境变量" },
         @{ Cmd = "Add-MyAlias"; Alias = "Add-MyAlias"; Desc = "添加别名" },
         @{ Cmd = "Remove-MyAlias"; Alias = "Remove-MyAlias"; Desc = "删除别名" },
         @{ Cmd = "Test-ScoopInstalled"; Alias = "Test-ScoopInstalled"; Desc = "检查 scoop 是否安装" }
