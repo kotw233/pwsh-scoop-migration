@@ -1,318 +1,22 @@
 {
-    "apps": [
-        {
-            "Name": "7zip",
-            "Updated": "2026-05-12T16:34:53.4826362+08:00",
-            "Info": "",
-            "Version": "26.01",
-            "Source": "main"
-        },
-        {
-            "Name": "android-studio",
-            "Updated": "2026-05-12T16:15:19.057375+08:00",
-            "Info": "",
-            "Version": "2025.3.4.7",
-            "Source": "extras"
-        },
-        {
-            "Name": "apktool",
-            "Updated": "2026-04-20T14:03:48.419753+08:00",
-            "Info": "",
-            "Version": "3.0.2",
-            "Source": "main"
-        },
-        {
-            "Name": "aria2",
-            "Updated": "2025-06-14T03:05:13.9323079+08:00",
-            "Info": "",
-            "Version": "1.37.0-1",
-            "Source": "main"
-        },
-        {
-            "Name": "burp-suite-pro-np",
-            "Updated": "2025-06-17T15:49:44.7903414+08:00",
-            "Info": "Held package",
-            "Version": "2025.5.4",
-            "Source": "nonportable"
-        },
-        {
-            "Name": "dark",
-            "Updated": "2025-06-16T00:33:28.254133+08:00",
-            "Info": "",
-            "Version": "3.14.1",
-            "Source": "main"
-        },
-        {
-            "Name": "detect-it-easy",
-            "Updated": "2026-05-12T16:18:02.3749249+08:00",
-            "Info": "",
-            "Version": "3.21",
-            "Source": "extras"
-        },
-        {
-            "Name": "escrcpy",
-            "Updated": "2026-05-14T10:36:39.8065984+08:00",
-            "Info": "",
-            "Version": "2.10.2",
-            "Source": "extras"
-        },
-        {
-            "Name": "everything",
-            "Updated": "2026-04-20T14:15:16.5448173+08:00",
-            "Info": "",
-            "Version": "1.4.1.1032",
-            "Source": "extras"
-        },
-        {
-            "Name": "everything-powertoys",
-            "Updated": "2025-06-29T23:59:31.7567013+08:00",
-            "Info": "",
-            "Version": "0.91.1",
-            "Source": "extras"
-        },
-        {
-            "Name": "fastfetch",
-            "Updated": "2026-05-14T10:36:43.1010718+08:00",
-            "Info": "",
-            "Version": "2.63.1",
-            "Source": "main"
-        },
-        {
-            "Name": "git",
-            "Updated": "2026-05-12T16:19:11.9188058+08:00",
-            "Info": "",
-            "Version": "2.54.0",
-            "Source": "main"
-        },
-        {
-            "Name": "gitleaks",
-            "Updated": "2026-04-21T14:10:57.0756465+08:00",
-            "Info": "",
-            "Version": "8.30.1",
-            "Source": "main"
-        },
-        {
-            "Name": "gsudo",
-            "Updated": "2025-10-10T14:29:34.2382426+08:00",
-            "Info": "",
-            "Version": "2.6.1",
-            "Source": "main"
-        },
-        {
-            "Name": "hibit-uninstaller",
-            "Updated": "2026-04-20T14:28:44.9667335+08:00",
-            "Info": "Held package",
-            "Version": "3.2.70",
-            "Source": "extras"
-        },
-        {
-            "Name": "innounp",
-            "Updated": "2026-05-12T16:19:15.1569143+08:00",
-            "Info": "",
-            "Version": "2.67.9",
-            "Source": "main"
-        },
-        {
-            "Name": "jadx",
-            "Updated": "2026-04-20T14:29:18.6665354+08:00",
-            "Info": "",
-            "Version": "1.5.5",
-            "Source": "extras"
-        },
-        {
-            "Name": "keepassxc",
-            "Updated": "2026-04-20T14:29:51.8853179+08:00",
-            "Info": "",
-            "Version": "2.7.12",
-            "Source": "extras"
-        },
-        {
-            "Name": "lazygit",
-            "Updated": "2026-04-20T14:29:59.5293531+08:00",
-            "Info": "",
-            "Version": "0.61.1",
-            "Source": "extras"
-        },
-        {
-            "Name": "lsd",
-            "Updated": "2026-04-20T14:30:12.2120218+08:00",
-            "Info": "",
-            "Version": "1.2.0",
-            "Source": "main"
-        },
-        {
-            "Name": "motrix",
-            "Updated": "2025-06-17T20:11:05.2565944+08:00",
-            "Info": "",
-            "Version": "1.8.19",
-            "Source": "extras"
-        },
-        {
-            "Name": "nmap",
-            "Updated": "2026-04-20T14:31:02.2219829+08:00",
-            "Info": "",
-            "Version": "7.99",
-            "Source": "main"
-        },
-        {
-            "Name": "nodejs",
-            "Updated": "2026-05-12T16:19:53.259455+08:00",
-            "Info": "",
-            "Version": "26.1.0",
-            "Source": "main"
-        },
-        {
-            "Name": "opencode",
-            "Updated": "2026-05-15T13:50:38.0896869+08:00",
-            "Info": "",
-            "Version": "1.15.0",
-            "Source": "D:\\Program_base\\Scoop\\buckets\\main\\bucket\\opencode.json"
-        },
-        {
-            "Name": "openjdk11",
-            "Updated": "2025-06-28T20:16:48.5805289+08:00",
-            "Info": "",
-            "Version": "11.0.2-9",
-            "Source": "java"
-        },
-        {
-            "Name": "openjdk17",
-            "Updated": "2025-06-28T20:16:51.2965296+08:00",
-            "Info": "",
-            "Version": "17.0.2-8",
-            "Source": "java"
-        },
-        {
-            "Name": "openjdk8-redhat",
-            "Updated": "2025-06-28T20:17:01.7442075+08:00",
-            "Info": "",
-            "Version": "8u342-b07",
-            "Source": "java"
-        },
-        {
-            "Name": "oss-browser",
-            "Updated": "2026-05-13T15:17:55.1084262+08:00",
-            "Info": "",
-            "Version": "1.19.0",
-            "Source": "extras"
-        },
-        {
-            "Name": "pandoc",
-            "Updated": "2026-04-20T14:33:42.7387888+08:00",
-            "Info": "",
-            "Version": "3.9.0.2",
-            "Source": "main"
-        },
-        {
-            "Name": "python27",
-            "Updated": "2025-06-28T20:18:01.3818818+08:00",
-            "Info": "",
-            "Version": "2.7.18",
-            "Source": "versions"
-        },
-        {
-            "Name": "python312",
-            "Updated": "2026-05-14T11:47:57.3059403+08:00",
-            "Info": "",
-            "Version": "3.12.10",
-            "Source": "versions"
-        },
-        {
-            "Name": "python38",
-            "Updated": "2025-06-19T17:15:44.9069122+08:00",
-            "Info": "",
-            "Version": "3.8.10",
-            "Source": "versions"
-        },
-        {
-            "Name": "qimgv",
-            "Updated": "2025-06-16T02:49:11.5918777+08:00",
-            "Info": "",
-            "Version": "1.0.2",
-            "Source": "extras"
-        },
-        {
-            "Name": "sandboxie-plus-np",
-            "Updated": "2026-05-12T16:24:46.2164768+08:00",
-            "Info": "",
-            "Version": "1.17.5",
-            "Source": "nonportable"
-        },
-        {
-            "Name": "sslscan",
-            "Updated": "2026-04-20T14:49:19.5506294+08:00",
-            "Info": "",
-            "Version": "2.2.2",
-            "Source": "main"
-        },
-        {
-            "Name": "starship",
-            "Updated": "2026-05-15T23:00:33.986207+08:00",
-            "Info": "",
-            "Version": "1.25.1",
-            "Source": "main"
-        },
-        {
-            "Name": "typora",
-            "Updated": "2026-04-20T14:50:20.4669012+08:00",
-            "Info": "",
-            "Version": "1.13.4",
-            "Source": "extras"
-        },
-        {
-            "Name": "vscode",
-            "Updated": "2026-05-14T10:37:40.7014358+08:00",
-            "Info": "",
-            "Version": "1.120.0",
-            "Source": "extras"
-        },
-        {
-            "Name": "wireshark",
-            "Updated": "2026-05-12T16:22:07.5618182+08:00",
-            "Info": "",
-            "Version": "4.6.5",
-            "Source": "extras"
-        },
-        {
-            "Name": "wkhtmltopdf",
-            "Updated": "2026-05-14T15:41:00.5818915+08:00",
-            "Info": "",
-            "Version": "0.12.6-1",
-            "Source": "main"
-        },
-        {
-            "Name": "zip",
-            "Updated": "2025-07-18T13:53:45.7823751+08:00",
-            "Info": "",
-            "Version": "3.0",
-            "Source": "main"
-        },
-        {
-            "Name": "zoxide",
-            "Updated": "2026-04-20T14:52:14.9351918+08:00",
-            "Info": "",
-            "Version": "0.9.9",
-            "Source": "main"
-        }
-    ],
     "buckets": [
         {
             "Name": "main",
             "Source": "https://github.com/ScoopInstaller/Main",
-            "Updated": "2026-05-16T00:58:32+08:00",
-            "Manifests": 1535
+            "Updated": "2026-05-18T17:33:32+08:00",
+            "Manifests": 1540
         },
         {
             "Name": "extras",
             "Source": "https://github.com/ScoopInstaller/Extras",
-            "Updated": "2026-05-16T03:22:22+08:00",
-            "Manifests": 2306
+            "Updated": "2026-05-18T17:34:18+08:00",
+            "Manifests": 2300
         },
         {
             "Name": "versions",
             "Source": "https://github.com/ScoopInstaller/Versions",
-            "Updated": "2026-05-16T01:55:43+08:00",
-            "Manifests": 580
+            "Updated": "2026-05-18T19:56:13+08:00",
+            "Manifests": 581
         },
         {
             "Name": "sysinternals",
@@ -329,13 +33,13 @@
         {
             "Name": "nonportable",
             "Source": "https://github.com/ScoopInstaller/Nonportable",
-            "Updated": "2026-05-14T15:27:18+08:00",
+            "Updated": "2026-05-18T19:55:33+08:00",
             "Manifests": 132
         },
         {
             "Name": "java",
             "Source": "https://github.com/ScoopInstaller/Java",
-            "Updated": "2026-05-15T22:08:34+08:00",
+            "Updated": "2026-05-17T11:32:55+08:00",
             "Manifests": 335
         },
         {
@@ -343,6 +47,316 @@
             "Source": "https://github.com/TheCjw/scoop-retools.git",
             "Updated": "2026-02-15T10:53:16+08:00",
             "Manifests": 22
+        }
+    ],
+    "apps": [
+        {
+            "Source": "main",
+            "Updated": "2026-05-12T16:34:53.4826362+08:00",
+            "Name": "7zip",
+            "Version": "26.01",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-05-12T16:15:19.057375+08:00",
+            "Name": "android-studio",
+            "Version": "2025.3.4.7",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-04-20T14:03:48.419753+08:00",
+            "Name": "apktool",
+            "Version": "3.0.2",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2025-06-14T03:05:13.9323079+08:00",
+            "Name": "aria2",
+            "Version": "1.37.0-1",
+            "Info": ""
+        },
+        {
+            "Source": "nonportable",
+            "Updated": "2025-06-17T15:49:44.7903414+08:00",
+            "Name": "burp-suite-pro-np",
+            "Version": "2025.5.4",
+            "Info": "Held package"
+        },
+        {
+            "Source": "main",
+            "Updated": "2025-06-16T00:33:28.254133+08:00",
+            "Name": "dark",
+            "Version": "3.14.1",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-05-12T16:18:02.3749249+08:00",
+            "Name": "detect-it-easy",
+            "Version": "3.21",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-05-14T10:36:39.8065984+08:00",
+            "Name": "escrcpy",
+            "Version": "2.10.2",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-04-20T14:15:16.5448173+08:00",
+            "Name": "everything",
+            "Version": "1.4.1.1032",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2025-06-29T23:59:31.7567013+08:00",
+            "Name": "everything-powertoys",
+            "Version": "0.91.1",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-14T10:36:43.1010718+08:00",
+            "Name": "fastfetch",
+            "Version": "2.63.1",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-12T16:19:11.9188058+08:00",
+            "Name": "git",
+            "Version": "2.54.0",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-04-21T14:10:57.0756465+08:00",
+            "Name": "gitleaks",
+            "Version": "8.30.1",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2025-10-10T14:29:34.2382426+08:00",
+            "Name": "gsudo",
+            "Version": "2.6.1",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-04-20T14:28:44.9667335+08:00",
+            "Name": "hibit-uninstaller",
+            "Version": "3.2.70",
+            "Info": "Held package"
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-12T16:19:15.1569143+08:00",
+            "Name": "innounp",
+            "Version": "2.67.9",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-04-20T14:29:18.6665354+08:00",
+            "Name": "jadx",
+            "Version": "1.5.5",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-04-20T14:29:51.8853179+08:00",
+            "Name": "keepassxc",
+            "Version": "2.7.12",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-04-20T14:29:59.5293531+08:00",
+            "Name": "lazygit",
+            "Version": "0.61.1",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-04-20T14:30:12.2120218+08:00",
+            "Name": "lsd",
+            "Version": "1.2.0",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2025-06-17T20:11:05.2565944+08:00",
+            "Name": "motrix",
+            "Version": "1.8.19",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-16T04:43:42.5908155+08:00",
+            "Name": "neovim",
+            "Version": "0.12.2",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-04-20T14:31:02.2219829+08:00",
+            "Name": "nmap",
+            "Version": "7.99",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-12T16:19:53.259455+08:00",
+            "Name": "nodejs",
+            "Version": "26.1.0",
+            "Info": ""
+        },
+        {
+            "Source": "<auto-generated>",
+            "Updated": "2026-05-18T19:27:00.5718212+08:00",
+            "Name": "opencode",
+            "Version": "1.15.4",
+            "Info": ""
+        },
+        {
+            "Source": "java",
+            "Updated": "2025-06-28T20:16:48.5805289+08:00",
+            "Name": "openjdk11",
+            "Version": "11.0.2-9",
+            "Info": ""
+        },
+        {
+            "Source": "java",
+            "Updated": "2025-06-28T20:16:51.2965296+08:00",
+            "Name": "openjdk17",
+            "Version": "17.0.2-8",
+            "Info": ""
+        },
+        {
+            "Source": "java",
+            "Updated": "2025-06-28T20:17:01.7442075+08:00",
+            "Name": "openjdk8-redhat",
+            "Version": "8u342-b07",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-05-13T15:17:55.1084262+08:00",
+            "Name": "oss-browser",
+            "Version": "1.19.0",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-04-20T14:33:42.7387888+08:00",
+            "Name": "pandoc",
+            "Version": "3.9.0.2",
+            "Info": ""
+        },
+        {
+            "Source": "versions",
+            "Updated": "2025-06-28T20:18:01.3818818+08:00",
+            "Name": "python27",
+            "Version": "2.7.18",
+            "Info": ""
+        },
+        {
+            "Source": "versions",
+            "Updated": "2026-05-14T11:47:57.3059403+08:00",
+            "Name": "python312",
+            "Version": "3.12.10",
+            "Info": ""
+        },
+        {
+            "Source": "versions",
+            "Updated": "2025-06-19T17:15:44.9069122+08:00",
+            "Name": "python38",
+            "Version": "3.8.10",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2025-06-16T02:49:11.5918777+08:00",
+            "Name": "qimgv",
+            "Version": "1.0.2",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-18T19:27:10.4973396+08:00",
+            "Name": "rtk",
+            "Version": "0.40.0",
+            "Info": ""
+        },
+        {
+            "Source": "nonportable",
+            "Updated": "2026-05-12T16:24:46.2164768+08:00",
+            "Name": "sandboxie-plus-np",
+            "Version": "1.17.5",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-04-20T14:49:19.5506294+08:00",
+            "Name": "sslscan",
+            "Version": "2.2.2",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-15T23:00:33.986207+08:00",
+            "Name": "starship",
+            "Version": "1.25.1",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-04-20T14:50:20.4669012+08:00",
+            "Name": "typora",
+            "Version": "1.13.4",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-05-14T10:37:40.7014358+08:00",
+            "Name": "vscode",
+            "Version": "1.120.0",
+            "Info": ""
+        },
+        {
+            "Source": "extras",
+            "Updated": "2026-05-12T16:22:07.5618182+08:00",
+            "Name": "wireshark",
+            "Version": "4.6.5",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-05-14T15:41:00.5818915+08:00",
+            "Name": "wkhtmltopdf",
+            "Version": "0.12.6-1",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2025-07-18T13:53:45.7823751+08:00",
+            "Name": "zip",
+            "Version": "3.0",
+            "Info": ""
+        },
+        {
+            "Source": "main",
+            "Updated": "2026-04-20T14:52:14.9351918+08:00",
+            "Name": "zoxide",
+            "Version": "0.9.9",
+            "Info": ""
         }
     ]
 }
