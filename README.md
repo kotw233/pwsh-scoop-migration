@@ -178,6 +178,8 @@ deploy.bat
 | `Get-ApkProtectInfo` | `apkprotect` | 查看加固信息 |
 | `Get-AppObfuscInfo` | `appinfo` | APK 混淆检测 |
 | `pullapk` | 从设备提取 APK（支持 `-Foreground` 提取前台应用） |
+| `pulldata` | 提取应用沙箱数据 |
+| `sandbox` | 查看沙箱权限/敏感文件（`-Files` 查找敏感文件） |
 | `Decompile-Apk` | `decompile` | 反编译 APK |
 | `Recompile-Apk` | `recompile` | 重编译 APK |
 | `Sign-Apk` | `signapk` | 签名 APK |

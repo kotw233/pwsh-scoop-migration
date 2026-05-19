@@ -172,7 +172,106 @@ function Get-DeviceApk {
     }
 }
 
+# ========== ADB 应用数据 ==========
+
+function Get-AppData {
+    param(
+        [string]$Package,
+        [string]$OutputDir = "."
+    )
+    
+    $adb = Get-AdbPath
+    if (-not $adb) { Write-Error "adb 未找到"; return }
+    
+    $devices = & $adb devices | Where-Object { $_ -match "device$" }
+    if (-not $devices) { Write-Error "未检测到已连接设备"; return }
+    
+    # 未指定包名时获取前台应用
+    if (-not $Package) {
+        $focusLine = & $adb shell dumpsys window 2>&1 | Select-String "mCurrentFocus" | Select-Object -First 1
+        if ($focusLine -match "Window\{.*?\s+([a-zA-Z0-9_.]+)/") {
+            $Package = $Matches[1]
+        } else {
+            Write-Error "无法获取前台应用，请指定包名"; return
+        }
+    }
+    
+    Write-Host "应用: $Package" -ForegroundColor Cyan
+    
+    # 检测 root 权限
+    $whoami = & $adb shell whoami 2>&1
+    $isRoot = $whoami -match "root"
+    
+    if ($isRoot) {
+        Write-Host "权限: root" -ForegroundColor Green
+        & $adb pull "/data/data/$Package" (Join-Path $OutputDir $Package)
+    } else {
+        Write-Host "权限: 非 root，尝试 su" -ForegroundColor Yellow
+        & $adb shell "su -c cp -r /data/data/$Package /sdcard/ 2>/dev/null"
+        & $adb pull "/sdcard/$Package" (Join-Path $OutputDir $Package)
+        & $adb shell "su -c rm -rf /sdcard/$Package" 2>$null
+    }
+    
+    Write-Host "✓ 已保存到: $(Join-Path $OutputDir $Package)" -ForegroundColor Green
+}
+
+function Get-AppSandbox {
+    param(
+        [string]$Package,
+        [switch]$Files
+    )
+    
+    $adb = Get-AdbPath
+    if (-not $adb) { Write-Error "adb 未找到"; return }
+    
+    $devices = & $adb devices | Where-Object { $_ -match "device$" }
+    if (-not $devices) { Write-Error "未检测到已连接设备"; return }
+    
+    # 未指定包名时获取前台应用
+    if (-not $Package) {
+        $focusLine = & $adb shell dumpsys window 2>&1 | Select-String "mCurrentFocus" | Select-Object -First 1
+        if ($focusLine -match "Window\{.*?\s+([a-zA-Z0-9_.]+)/") {
+            $Package = $Matches[1]
+        } else {
+            Write-Error "无法获取前台应用，请指定包名"; return
+        }
+    }
+    
+    Write-Host "应用: $Package" -ForegroundColor Cyan
+    
+    # 检测 root 权限
+    $whoami = & $adb shell whoami 2>&1
+    $isRoot = $whoami -match "root"
+    
+    if ($Files) {
+        # 查找敏感文件
+        Write-Host "`n敏感文件:" -ForegroundColor Cyan
+        $sensitiveExtensions = @("*.p12", "*.db", "*.xml", "*.js", "*.plist", "*.txt", "*.sqlite", "*.lua", "*.html", "*.key", "*.pem", "*.jks")
+        $basePath = if ($isRoot) { "/data/data/$Package" } else {
+            & $adb shell "su -c ls /data/data/$Package" 2>$null | Out-Null
+            "/data/data/$Package"
+        }
+        
+        foreach ($ext in $sensitiveExtensions) {
+            $result = & $adb shell "su -c 'find /data/data/$Package -name $ext 2>/dev/null'"
+            if ($result) {
+                $result | ForEach-Object { Write-Host "  $_" -ForegroundColor Green }
+            }
+        }
+    } else {
+        # 查看沙箱目录
+        Write-Host "`n沙箱目录:" -ForegroundColor Cyan
+        if ($isRoot) {
+            & $adb shell "ls -la /data/data/$Package"
+        } else {
+            & $adb shell "su -c ls -la /data/data/$Package"
+        }
+    }
+}
+
 Set-Alias -Name pullapk -Value Get-DeviceApk -Scope Global
+Set-Alias -Name pulldata -Value Get-AppData -Scope Global
+Set-Alias -Name sandbox -Value Get-AppSandbox -Scope Global
 
 Set-Alias -Name apkinfo -Value Get-ApkInfo -Scope Global
 Set-Alias -Name apksign -Value Get-ApkSignInfo -Scope Global
