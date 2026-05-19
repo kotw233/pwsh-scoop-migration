@@ -138,23 +138,25 @@ function Get-DeviceApk {
     }
     
     # 处理多个 APK（split APKs）
-    $apkList = $apkPath -split "`n" | ForEach-Object { $_ -replace "package:", "" } | Where-Object { $_.Trim() }
+    $apkList = @($apkPath -split "`n" | ForEach-Object { ($_ -replace "package:", "").Trim() } | Where-Object { $_ })
     
     if (-not (Test-Path $OutputDir)) { New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null }
     
     foreach ($remotePath in $apkList) {
-        $fileName = [IO.Path]::GetFileName($remotePath.Trim())
+        $fileName = [IO.Path]::GetFileName($remotePath)
         $localPath = Join-Path $OutputDir $fileName
         Write-Host "拉取: $remotePath" -ForegroundColor Yellow
-        adb pull $remotePath.Trim() $localPath
+        adb pull $remotePath $localPath
         Write-Host "✓ 已保存: $localPath" -ForegroundColor Green
     }
     
     # 显示 APK 信息
-    $mainApk = Join-Path $OutputDir ([IO.Path]::GetFileName($apkList[0].Trim()))
-    if (Test-Path $mainApk) {
-        Write-Host "`nAPK 信息:" -ForegroundColor Cyan
-        Get-ApkInfo $mainApk
+    if ($apkList.Count -gt 0) {
+        $mainApk = Join-Path $OutputDir ([IO.Path]::GetFileName($apkList[0]))
+        if (Test-Path $mainApk) {
+            Write-Host "`nAPK 信息:" -ForegroundColor Cyan
+            Get-ApkInfo $mainApk
+        }
     }
 }
 
