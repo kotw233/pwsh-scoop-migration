@@ -25,7 +25,11 @@ function Start-ScoopApp {
     $appPath = Get-ScoopAppPath $AppName
     $exe = Get-ChildItem "$appPath\*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($exe) {
-        Start-Process $exe.FullName
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = $exe.FullName
+        $psi.UseShellExecute = $true
+        $psi.CreateNoWindow = $true
+        [System.Diagnostics.Process]::Start($psi) | Out-Null
     } else {
         Write-Host "✗ $AppName 未找到可执行文件" -ForegroundColor Red
     }
