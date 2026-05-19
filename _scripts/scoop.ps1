@@ -26,12 +26,12 @@ function Disable-Aria2 { scoop config aria2-enabled false }
 
 # 列出已安装的 Python
 function Get-InstalledPython {
-    scoop list | Where-Object { $_ -match "(?i)python" }
+    scoop list | Where-Object { $_.Name -match "(?i)python" }
 }
 
 # 列出已安装的 JDK
 function Get-InstalledJdk {
-    scoop list | Where-Object { $_ -match "(?i)jdk|java" }
+    scoop list | Where-Object { $_.Name -match "(?i)jdk|java" }
 }
 
 # 切换 Java 版本
@@ -43,7 +43,7 @@ function Switch-Java {
         default { "openjdk$Version" }
     }
     
-    $installed = scoop list $package 2>$null | Where-Object { $_ -match "^$package\s" }
+    $installed = scoop list $package 2>$null | Where-Object { $_.Name -eq $package }
     if (-not $installed) {
         Write-Host "✗ $package 未安装，请先执行: scoop install $package" -ForegroundColor Red
         return
@@ -62,8 +62,8 @@ function Switch-Java {
 function Switch-Python {
     param([Parameter(Mandatory)][string]$Version)
     
-    $package = "python$Version"
-    $installed = scoop list $package 2>$null | Where-Object { $_ -match "^$package\s" }
+    $package = "python$($Version -replace '\.','')"
+    $installed = scoop list $package 2>$null | Where-Object { $_.Name -eq $package }
     if (-not $installed) {
         Write-Host "✗ $package 未安装，请先执行: scoop install $package" -ForegroundColor Red
         return
