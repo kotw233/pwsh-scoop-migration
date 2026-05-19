@@ -9,7 +9,7 @@
 
 # ========== 基础设置 ==========
 
-$ErrorActionPreference = "Continue"
+$ErrorActionPreference = "Stop"
 
 # UTF-8 编码设置（必须在最前面）
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -104,10 +104,14 @@ if ($host.Name -eq "ConsoleHost") {
     }
 
     # starship 主题
-    Invoke-Expression (&starship init powershell)
+    if (Test-CommandExists "starship") {
+        Invoke-Expression (&starship init powershell)
+    }
 
     # zoxide 智能 cd
-    Invoke-Expression (& { zoxide init powershell | Out-String })
+    if (Test-CommandExists "zoxide") {
+        Invoke-Expression (& { zoxide init powershell | Out-String })
+    }
 
     # PSReadLine 配置
     Set-PSReadLineOption -EditMode Windows
