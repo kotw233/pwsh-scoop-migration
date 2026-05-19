@@ -75,9 +75,6 @@ $aliasMap = @{
     "owp"       = "Open-Explorer"
     "b64e"      = "ConvertTo-Base64"
     "b64d"      = "ConvertFrom-Base64"
-    "md5"       = "Get-FileHashMD5"
-    "sha1"      = "Get-FileHashSHA1"
-    "sha256"    = "Get-FileHashSHA256"
     "md5sum"    = "Get-FileHashMD5"
     "sha1sum"   = "Get-FileHashSHA1"
     "sha256sum" = "Get-FileHashSHA256"
@@ -133,9 +130,9 @@ function Get-MyCommands {
         @{ Cmd = "Open-Explorer"; Alias = "ex/owp"; Desc = "资源管理器打开当前目录" },
         @{ Cmd = "ConvertTo-Base64"; Alias = "b64e"; Desc = "Base64 编码" },
         @{ Cmd = "ConvertFrom-Base64"; Alias = "b64d"; Desc = "Base64 解码" },
-        @{ Cmd = "Get-FileHashMD5"; Alias = "md5"; Desc = "MD5 哈希" },
-        @{ Cmd = "Get-FileHashSHA1"; Alias = "sha1"; Desc = "SHA1 哈希" },
-        @{ Cmd = "Get-FileHashSHA256"; Alias = "sha256"; Desc = "SHA256 哈希" },
+        @{ Cmd = "Get-FileHashMD5"; Alias = "md5sum"; Desc = "MD5 哈希" },
+        @{ Cmd = "Get-FileHashSHA1"; Alias = "sha1sum"; Desc = "SHA1 哈希" },
+        @{ Cmd = "Get-FileHashSHA256"; Alias = "sha256sum"; Desc = "SHA256 哈希" },
         @{ Cmd = "lsd -l"; Alias = "ll"; Desc = "长列表" },
         @{ Cmd = "lsd -alFh"; Alias = "la"; Desc = "完整列表" },
         @{ Cmd = "lsd -lFh"; Alias = "l"; Desc = "简洁列表" },
