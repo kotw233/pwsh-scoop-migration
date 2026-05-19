@@ -49,6 +49,7 @@ pwshcfg/
 │   ├── start.ps1                 # 快捷启动
 │   ├── scoop.ps1                 # Scoop 管理
 │   ├── dotnet.ps1                # .NET 补全
+│   ├── lazygit.ps1               # LazyGit 快捷
 │   ├── rust.ps1                  # Rust 环境
 │   └── python.ps1                # Python 环境
 ├── _modules/                     # 模块（懒加载）
@@ -117,6 +118,10 @@ deploy.bat
 | `proxy` | 启用代理 |
 | `unproxy` | 禁用代理 |
 | `cmds` | 列出所有命令 |
+| `s` | 查看历史命令 |
+| `env` | 列出环境变量 |
+| `aria2` | 启用 aria2 加速 |
+| `aria2off` | 禁用 aria2 |
 
 ### 搜索工具
 
@@ -164,15 +169,20 @@ deploy.bat
 
 ### Android 工具（懒加载）
 
-| 命令 | 说明 |
-|------|------|
-| `Get-ApkInfo` | 获取 APK 信息 |
-| `Get-ApkSignInfo` | 获取 APK 签名 |
-| `Decompile-Apk` | 反编译 APK |
-| `Recompile-Apk` | 重编译 APK |
-| `Sign-Apk` | 签名 APK |
-| `Test-ApkLib` | APK 安全检测 |
-| `appinfo` | APK 混淆检测 |
+| 命令 | 别名 | 说明 |
+|------|------|------|
+| `Get-ApkInfo` | `apkinfo` | 获取 APK 信息 |
+| `Get-ApkSignInfo` | `apksign` | 获取 APK 签名 |
+| `Get-JarSignInfo` | `jarsign` | 获取 JAR 签名 |
+| `Get-ApkLibs` | `apklibs` | 获取 APK 中的 so 文件 |
+| `Get-ApkProtectInfo` | `apkprotect` | 查看加固信息 |
+| `Get-AppObfuscInfo` | `appinfo` | APK 混淆检测 |
+| `Decompile-Apk` | `decompile` | 反编译 APK |
+| `Recompile-Apk` | `recompile` | 重编译 APK |
+| `Sign-Apk` | `signapk` | 签名 APK |
+| `Test-RebuiltApk` | `testapk` | 重打包测试 |
+| `Test-EmulatorApk` | `testemu` | 模拟器测试 |
+| `Test-ApkLib` | `testlib` | APK 安全检测 |
 
 ## 新电脑需要手动配置
 

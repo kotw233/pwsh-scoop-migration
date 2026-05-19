@@ -161,7 +161,6 @@ function Get-MyCommands {
         @{ Cmd = "scoop status"; Alias = "skst"; Desc = "查看状态" },
         @{ Cmd = "scoop cleanup"; Alias = "skc"; Desc = "清理缓存" },
         @{ Cmd = "Start-Burp"; Alias = "burp"; Desc = "启动 Burp Suite" },
-        @{ Cmd = "Start-ScoopApp"; Alias = "Start-ScoopApp"; Desc = "启动 scoop 应用" },
         @{ Cmd = "code"; Alias = "vs"; Desc = "启动 VS Code" },
         @{ Cmd = "history"; Alias = "s"; Desc = "查看历史命令" },
         @{ Cmd = "gsudo"; Alias = "sudo"; Desc = "管理员提权" },

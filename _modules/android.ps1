@@ -77,19 +77,22 @@ function Get-ApkProtectInfo {
     }
 }
 
-# 获取 App 混淆信息（需要外部工具）
+# ========== APK 混淆信息检测 ==========
+
 function Get-AppObfuscInfo {
     param([Parameter(Mandatory)][string]$Path)
     
     $toolPath = $Env:APPOBFUSC_TOOL
     if (-not $toolPath -or -not (Test-Path $toolPath)) {
         Write-Warning "APPOBFUSC_TOOL 未设置或路径不存在"
-        Write-Warning "请设置: `$Env:APPOBFUSC_TOOL = 'D:\SecTools\AppTools\apphide\appinfo\appinfo.py'"
+        Write-Warning "请设置: `$Env:APPOBFUSC_TOOL = 'path\to\appinfo.py'"
         return
     }
     
     & python $toolPath (Resolve-Path -Path $Path)
 }
+
+# ========== 别名注册 ==========
 
 Set-Alias -Name apkinfo -Value Get-ApkInfo -Scope Global
 Set-Alias -Name apksign -Value Get-ApkSignInfo -Scope Global
@@ -195,9 +198,3 @@ if (-not $Env:APPOBFUSC_TOOL) {
 
 # 初始化
 Initialize-AndroidEnv
-
-# APK 混淆信息检测
-function appinfo {
-    param([Parameter(Mandatory)][string]$Path)
-    python "D:\SecTools\AppTools\apphide\appinfo\appinfo.py" $Path
-}

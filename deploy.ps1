@@ -104,7 +104,7 @@ function Restore-Apps {
 
     foreach ($app in $apps) {
         $current++
-        $installed = scoop list $app.name 2>$null | Where-Object { $_ -match "^$($app.name)\s" }
+            $installed = scoop list $app.name 2>$null | Where-Object { $_.Name -eq $app.Name }
 
         if (-not $installed) {
             Write-Info "($current/$total) 安装: $($app.name)"
