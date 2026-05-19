@@ -193,6 +193,7 @@ function Get-MyCommands {
         @{ Name = "Get-ApkProtectInfo"; Alias = "apkprotect"; Desc = "查看加固信息" },
         @{ Name = "Get-AppObfuscInfo"; Alias = "appinfo"; Desc = "获取混淆信息" },
         @{ Name = "Get-DeviceApk"; Alias = "pullapk"; Desc = "从设备提取 APK" },
+        @{ Name = "Get-ForegroundApk"; Alias = "fgapk"; Desc = "提取前台应用 APK" },
         @{ Name = "Decompile-Apk"; Alias = "decompile"; Desc = "反编译 APK" },
         @{ Name = "Recompile-Apk"; Alias = "recompile"; Desc = "重编译 APK" },
         @{ Name = "Sign-Apk"; Alias = "signapk"; Desc = "签名 APK" },

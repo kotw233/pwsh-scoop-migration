@@ -143,6 +143,37 @@ function Get-DeviceApk {
 
 Set-Alias -Name pullapk -Value Get-DeviceApk -Scope Global
 
+function Get-ForegroundApk {
+    param([string]$OutputDir = ".")
+    
+    if (-not (Test-CommandExists adb)) { Write-Error "adb 未找到"; return }
+    
+    $devices = adb devices | Where-Object { $_ -match "device$" }
+    if (-not $devices) { Write-Error "未检测到已连接设备"; return }
+    
+    # 获取前台应用包名
+    $topActivity = adb shell dumpsys activity activities 2>&1 | Select-String "mResumedActivity" | Select-Object -First 1
+    if (-not $topActivity) {
+        $topActivity = adb shell dumpsys activity top 2>&1 | Select-String "ACTIVITY" | Select-Object -First 1
+    }
+    
+    if (-not $topActivity -or $topActivity -notmatch "([a-zA-Z0-9_.]+/[a-zA-Z0-9_.]+)") {
+        Write-Error "无法获取前台应用"
+        return
+    }
+    
+    $component = $Matches[1]
+    $package = $component.Split("/")[0]
+    
+    Write-Host "前台应用: $package" -ForegroundColor Cyan
+    Write-Host "组件: $component" -ForegroundColor DarkGray
+    
+    # 调用 pullapk 提取
+    Get-DeviceApk -Package $package -OutputDir $OutputDir
+}
+
+Set-Alias -Name fgapk -Value Get-ForegroundApk -Scope Global
+
 Set-Alias -Name apkinfo -Value Get-ApkInfo -Scope Global
 Set-Alias -Name apksign -Value Get-ApkSignInfo -Scope Global
 Set-Alias -Name jarsign -Value Get-JarSignInfo -Scope Global
