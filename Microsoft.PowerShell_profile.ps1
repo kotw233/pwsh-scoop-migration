@@ -69,7 +69,7 @@ if (-not $script:isAdmin) {
                     . $modulePathCopy
                     # 导出到全局作用域，确保后续调用可用
                     $func = Get-Item "function:$funcNameCopy" -ErrorAction SilentlyContinue
-                    if ($func) { Set-Item -Path "global:function:$funcNameCopy" -Value $func }
+                    if ($func) { Set-Item -Path "function:$funcNameCopy" -Value $func -Scope Global }
                     & $funcNameCopy @args
                 }.GetNewClosure()
             }
@@ -85,7 +85,7 @@ if (-not $script:isAdmin) {
                     . $modulePathCopy2
                     # 导出别名到全局作用域
                     $alias = Get-Item "alias:$aliasName" -ErrorAction SilentlyContinue
-                    if ($alias) { Set-Item -Path "global:alias:$aliasName" -Value $alias }
+                    if ($alias) { Set-Item -Path "alias:$aliasName" -Value $alias -Scope Global }
                     & $aliasValue @args
                 }.GetNewClosure()
             }
