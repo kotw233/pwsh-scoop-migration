@@ -44,10 +44,7 @@ pwshcfg/
 ├── installed_apps.json           # 已安装应用列表
 ├── _scripts/                     # 功能脚本（自动加载）
 │   ├── Utils.ps1                 # 基础工具函数
-│   ├── Android.ps1               # Android 工具
 │   ├── proxy.ps1                 # 代理开关
-│   ├── encoding.ps1              # Base64 编解码
-│   ├── hash.ps1                  # 文件哈希
 │   ├── lsd.ps1                   # 目录美化
 │   ├── start.ps1                 # 快捷启动
 │   ├── scoop.ps1                 # Scoop 管理
@@ -114,12 +111,22 @@ deploy.bat
 | `ex` / `owp` | 资源管理器打开当前目录 |
 | `b64e` | Base64 编码 |
 | `b64d` | Base64 解码 |
-| `md5` | MD5 哈希 |
-| `sha1` | SHA1 哈希 |
-| `sha256` | SHA256 哈希 |
+| `md5sum` | MD5 哈希 |
+| `sha1sum` | SHA1 哈希 |
+| `sha256sum` | SHA256 哈希 |
 | `proxy` | 启用代理 |
 | `unproxy` | 禁用代理 |
 | `cmds` | 列出所有命令 |
+
+### 搜索工具
+
+| 别名 | 说明 |
+|------|------|
+| `ff` | fd 快速查找文件 |
+| `rg` | ripgrep 快速搜索内容 |
+| `touch` | 创建文件/修改时间戳 |
+| `Ctrl+R` | fzf 搜索历史命令 |
+| `Ctrl+T` | fzf 搜索文件并插入路径 |
 
 ### 目录列表
 
@@ -128,6 +135,11 @@ deploy.bat
 | `ll` | 长列表 |
 | `la` | 完整列表 |
 | `l` | 简洁列表 |
+| `lt` | 树形显示 |
+| `lS` | 文件大小 |
+| `lsg` | 显示 git 状态 |
+| `lsrt` | 按时间排序 |
+| `lsz` | 按大小排序 |
 
 ### 版本切换
 
