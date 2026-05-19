@@ -94,6 +94,14 @@ function Get-AppObfuscInfo {
 
 # ========== ADB APK 提取 ==========
 
+function Get-AdbPath {
+    if (Get-Command adb -ErrorAction SilentlyContinue) { return "adb" }
+    if ($Env:ANDROID_HOME -and (Test-Path "$Env:ANDROID_HOME\platform-tools\adb.exe")) {
+        return "$Env:ANDROID_HOME\platform-tools\adb.exe"
+    }
+    return $null
+}
+
 function Get-DeviceApk {
     param(
         [string]$Package,
@@ -101,28 +109,27 @@ function Get-DeviceApk {
         [switch]$Foreground
     )
     
-    if (-not (Test-CommandExists adb)) { Write-Error "adb 未找到，请确认 ANDROID_HOME 已设置"; return }
+    $adb = Get-AdbPath
+    if (-not $adb) { Write-Error "adb 未找到，请确认 ANDROID_HOME 已设置"; return }
     
-    $devices = adb devices | Where-Object { $_ -match "device$" }
+    $devices = & $adb devices | Where-Object { $_ -match "device$" }
     if (-not $devices) { Write-Error "未检测到已连接设备"; return }
     
     # 未指定包名且非前台模式时，列出已安装的第三方应用
     if (-not $Package -and -not $Foreground) {
         Write-Host "已安装的第三方应用:" -ForegroundColor Cyan
-        adb shell pm list packages -3 | ForEach-Object { $_ -replace "package:", "" } | Sort-Object
+        & $adb shell pm list packages -3 | ForEach-Object { $_ -replace "package:", "" } | Sort-Object
         return
     }
     
     # 获取前台应用包名
     if ($Foreground -and -not $Package) {
-        # 使用 dumpsys window 获取当前焦点应用（最准确）
-        $focusLine = adb shell dumpsys window 2>&1 | Select-String "mCurrentFocus" | Select-Object -First 1
+        $focusLine = & $adb shell dumpsys window 2>&1 | Select-String "mCurrentFocus" | Select-Object -First 1
         
         if ($focusLine -match "Window\{.*?\s+([a-zA-Z0-9_.]+)/") {
             $Package = $Matches[1]
         } else {
-            # 备用方案：dumpsys activity
-            $focusLine = adb shell dumpsys activity activities 2>&1 | Select-String "topResumedActivity" | Select-Object -First 1
+            $focusLine = & $adb shell dumpsys activity activities 2>&1 | Select-String "topResumedActivity" | Select-Object -First 1
             if ($focusLine -match "u\d+\s+([a-zA-Z0-9_.]+)/") {
                 $Package = $Matches[1]
             }
@@ -136,7 +143,7 @@ function Get-DeviceApk {
     }
     
     # 获取 APK 路径
-    $apkPath = adb shell pm path $Package 2>&1
+    $apkPath = & $adb shell pm path $Package 2>&1
     if ($LASTEXITCODE -ne 0 -or -not $apkPath) {
         Write-Error "未找到包: $Package"
         return
@@ -151,7 +158,7 @@ function Get-DeviceApk {
         $fileName = [IO.Path]::GetFileName($remotePath)
         $localPath = Join-Path $OutputDir $fileName
         Write-Host "拉取: $remotePath" -ForegroundColor Yellow
-        adb pull $remotePath $localPath
+        & $adb pull $remotePath $localPath
         Write-Host "✓ 已保存: $localPath" -ForegroundColor Green
     }
     
