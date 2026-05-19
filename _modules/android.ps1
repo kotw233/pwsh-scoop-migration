@@ -115,18 +115,23 @@ function Get-DeviceApk {
     
     # 获取前台应用包名
     if ($Foreground -and -not $Package) {
-        $topActivity = adb shell dumpsys activity activities 2>&1 | Select-String "mResumedActivity" | Select-Object -First 1
-        if (-not $topActivity) {
-            $topActivity = adb shell dumpsys activity top 2>&1 | Select-String "ACTIVITY" | Select-Object -First 1
+        # 使用 dumpsys window 获取当前焦点应用（最准确）
+        $focusLine = adb shell dumpsys window 2>&1 | Select-String "mCurrentFocus" | Select-Object -First 1
+        
+        if ($focusLine -match "Window\{.*?\s+([a-zA-Z0-9_.]+)/") {
+            $Package = $Matches[1]
+        } else {
+            # 备用方案：dumpsys activity
+            $focusLine = adb shell dumpsys activity activities 2>&1 | Select-String "topResumedActivity" | Select-Object -First 1
+            if ($focusLine -match "u\d+\s+([a-zA-Z0-9_.]+)/") {
+                $Package = $Matches[1]
+            }
         }
         
-        if (-not $topActivity -or $topActivity -notmatch "([a-zA-Z0-9_.]+/[a-zA-Z0-9_.]+)") {
+        if (-not $Package) {
             Write-Error "无法获取前台应用"
             return
         }
-        
-        $component = $Matches[1]
-        $Package = $component.Split("/")[0]
         Write-Host "前台应用: $Package" -ForegroundColor Cyan
     }
     
