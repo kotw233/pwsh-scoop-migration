@@ -181,7 +181,7 @@ function Get-MyCommands {
         Write-Host ("  {0,-25} {1,-15} {2}" -f $cmd.Cmd, $cmd.Alias, $cmd.Desc) -ForegroundColor Green
     }
     
-    Write-Host "`n=== Android 模块（懒加载）===" -ForegroundColor Cyan
+    Write-Host "`n=== Android 模块 ===" -ForegroundColor Cyan
     Write-Host ("  {0,-25} {1,-15} {2}" -f "命令", "别名", "说明") -ForegroundColor White
     Write-Host "  $('─' * 55)" -ForegroundColor DarkGray
     
