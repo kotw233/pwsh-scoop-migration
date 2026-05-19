@@ -52,40 +52,10 @@ if (-not $script:isAdmin) {
         }
     }
 
-    # ========== 懒加载 Modules ==========
+    # ========== 加载 Modules ==========
     if (Test-Path $ModulesDir) {
         Get-ChildItem -Path $ModulesDir -Filter "*.ps1" | Where-Object { $_.BaseName -notlike "Test-*" } | ForEach-Object {
-            $modulePath = $_.FullName
-
-            # 为脚本中每个函数创建懒加载包装
-            $content = Get-Content $modulePath -Raw
-            $functions = [regex]::Matches($content, 'function\s+(\S+)')
-            foreach ($func in $functions) {
-                $funcName = $func.Groups[1].Value
-                $modulePathCopy = $modulePath
-                $funcNameCopy = $funcName
-                Set-Item -Path "function:$funcNameCopy" -Value {
-                    Remove-Item -Path "function:$funcNameCopy" -ErrorAction SilentlyContinue
-                    . $modulePathCopy
-                    # 将函数导出到全局作用域
-                    $srcFunc = Get-Item "function:$funcNameCopy" -ErrorAction SilentlyContinue
-                    if ($srcFunc) { ${function:global:$funcNameCopy} = $srcFunc.ScriptBlock }
-                    & $funcNameCopy @args
-                }.GetNewClosure()
-            }
-
-            # 别名也注册
-            $aliases = [regex]::Matches($content, 'Set-Alias\s+-Name\s+(\S+)\s+-Value\s+(\S+)')
-            foreach ($alias in $aliases) {
-                $aliasName = $alias.Groups[1].Value
-                $aliasValue = $alias.Groups[2].Value
-                $modulePathCopy2 = $modulePath
-                Set-Item -Path "function:$aliasName" -Value {
-                    Remove-Item -Path "function:$aliasName" -ErrorAction SilentlyContinue
-                    . $modulePathCopy2
-                    & $aliasValue @args
-                }.GetNewClosure()
-            }
+            . $_.FullName
         }
     }
 }
