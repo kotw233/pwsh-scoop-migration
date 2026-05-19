@@ -92,7 +92,56 @@ function Get-AppObfuscInfo {
     & python $toolPath (Resolve-Path -Path $Path)
 }
 
-# ========== 别名注册 ==========
+# ========== ADB APK 提取 ==========
+
+function Get-DeviceApk {
+    param(
+        [string]$Package,
+        [string]$OutputDir = "."
+    )
+    
+    if (-not (Test-CommandExists adb)) { Write-Error "adb 未找到，请确认 ANDROID_HOME 已设置"; return }
+    
+    # 列出设备
+    $devices = adb devices | Where-Object { $_ -match "device$" }
+    if (-not $devices) { Write-Error "未检测到已连接设备"; return }
+    
+    # 未指定包名时列出已安装的第三方应用
+    if (-not $Package) {
+        Write-Host "已安装的第三方应用:" -ForegroundColor Cyan
+        adb shell pm list packages -3 | ForEach-Object { $_ -replace "package:", "" } | Sort-Object
+        return
+    }
+    
+    # 获取 APK 路径
+    $apkPath = adb shell pm path $Package 2>&1
+    if ($LASTEXITCODE -ne 0 -or -not $apkPath) {
+        Write-Error "未找到包: $Package"
+        return
+    }
+    
+    # 处理多个 APK（split APKs）
+    $apkList = $apkPath -split "`n" | ForEach-Object { $_ -replace "package:", "" } | Where-Object { $_.Trim() }
+    
+    if (-not (Test-Path $OutputDir)) { New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null }
+    
+    foreach ($remotePath in $apkList) {
+        $fileName = [IO.Path]::GetFileName($remotePath.Trim())
+        $localPath = Join-Path $OutputDir $fileName
+        Write-Host "拉取: $remotePath" -ForegroundColor Yellow
+        adb pull $remotePath.Trim() $localPath
+        Write-Host "✓ 已保存: $localPath" -ForegroundColor Green
+    }
+    
+    # 显示 APK 信息
+    $mainApk = Join-Path $OutputDir ([IO.Path]::GetFileName($apkList[0].Trim()))
+    if (Test-Path $mainApk) {
+        Write-Host "`nAPK 信息:" -ForegroundColor Cyan
+        Get-ApkInfo $mainApk
+    }
+}
+
+Set-Alias -Name pullapk -Value Get-DeviceApk -Scope Global
 
 Set-Alias -Name apkinfo -Value Get-ApkInfo -Scope Global
 Set-Alias -Name apksign -Value Get-ApkSignInfo -Scope Global
@@ -100,6 +149,7 @@ Set-Alias -Name jarsign -Value Get-JarSignInfo -Scope Global
 Set-Alias -Name apklibs -Value Get-ApkLibs -Scope Global
 Set-Alias -Name apkprotect -Value Get-ApkProtectInfo -Scope Global
 Set-Alias -Name appinfo -Value Get-AppObfuscInfo -Scope Global
+Set-Alias -Name pullapk -Value Get-DeviceApk -Scope Global
 Set-Alias -Name decompile -Value Decompile-Apk -Scope Global
 Set-Alias -Name recompile -Value Recompile-Apk -Scope Global
 Set-Alias -Name signapk -Value Sign-Apk -Scope Global
