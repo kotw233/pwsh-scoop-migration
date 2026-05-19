@@ -112,6 +112,8 @@ $aliasMap = @{
     "skca"      = "Invoke-ScoopCache"
     "cmds"      = "Get-MyCommands"
     "env"       = "Get-EnvVars"
+    "ff"        = "fd"
+    "rg"        = "rg"
 }
 
 foreach ($alias in $aliasMap.Keys) {
@@ -167,6 +169,10 @@ function Get-MyCommands {
         @{ Cmd = "lazygit"; Alias = "lg"; Desc = "lazygit" },
         @{ Cmd = "Get-MyCommands"; Alias = "cmds"; Desc = "列出所有命令" },
         @{ Cmd = "Get-EnvVars"; Alias = "env"; Desc = "列出环境变量" },
+        @{ Cmd = "fzf"; Alias = "fzf"; Desc = "模糊搜索（Ctrl+R历史 Ctrl+T文件）" },
+        @{ Cmd = "fd"; Alias = "ff"; Desc = "快速查找文件" },
+        @{ Cmd = "rg"; Alias = "rg"; Desc = "快速搜索内容" },
+        @{ Cmd = "touch"; Alias = "touch"; Desc = "创建文件/修改时间戳" },
         @{ Cmd = "Add-MyAlias"; Alias = "Add-MyAlias"; Desc = "添加别名" },
         @{ Cmd = "Remove-MyAlias"; Alias = "Remove-MyAlias"; Desc = "删除别名" },
         @{ Cmd = "Test-ScoopInstalled"; Alias = "Test-ScoopInstalled"; Desc = "检查 scoop 是否安装" }

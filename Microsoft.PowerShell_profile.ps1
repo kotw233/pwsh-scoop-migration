@@ -117,6 +117,35 @@ if ($host.Name -eq "ConsoleHost") {
     Set-PSReadLineOption -EditMode Windows
     Set-PSReadLineOption -HistorySearchCursorMovesToEnd
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+
+    # fzf 搜索集成
+    if (Test-CommandExists "fzf") {
+        $env:FZF_DEFAULT_COMMAND = 'fd --type f --hidden --follow --exclude .git'
+        $env:FZF_CTRL_T_COMMAND = $env:FZF_DEFAULT_COMMAND
+        $env:FZF_DEFAULT_OPTS = '--height 40% --layout=reverse --border --info=inline'
+
+        # Ctrl+R: fzf 搜索历史
+        Set-PSReadLineKeyHandler -Key Ctrl+r -ScriptBlock {
+            $line = $null; $cursor = $null
+            [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+            $history = Get-Content (Get-PSReadLineOption).HistorySavePath |
+                Where-Object { $_ -match $line } |
+                fzf --tac --no-sort --query "$line" --height 40% --layout=reverse --border
+            if ($history) {
+                [Microsoft.PowerShell.PSConsoleReadLine]::RevertLine()
+                [Microsoft.PowerShell.PSConsoleReadLine]::Insert($history)
+            }
+        }
+
+        # Ctrl+T: fzf 搜索文件并插入路径
+        Set-PSReadLineKeyHandler -Key Ctrl+t -ScriptBlock {
+            $file = fd --type f --hidden --follow --exclude .git 2>$null |
+                fzf --height 40% --layout=reverse --border
+            if ($file) {
+                [Microsoft.PowerShell.PSConsoleReadLine]::Insert($file)
+            }
+        }
+    }
 }
 
 # WinGet CommandNotFound 提示
