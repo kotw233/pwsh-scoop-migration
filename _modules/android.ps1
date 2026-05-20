@@ -354,10 +354,14 @@ function Test-RebuiltApk {
 }
 
 function Test-EmulatorApk {
-    param([string]$EmulatorName)
+    param(
+        [Parameter(Mandatory)]
+        [string]$ApkPath,
+        [string]$EmulatorName
+    )
     $BaseDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "PowerShell"
-    $params = @{}
-    if ($EmulatorName) { $params["EmulatorName"] = $EmulatorName }
+    $params = @{ apkPath = $ApkPath }
+    if ($EmulatorName) { $params["avdName"] = $EmulatorName }
     & "$BaseDir\_modules\Test-Emulator.ps1" @params
 }
 
