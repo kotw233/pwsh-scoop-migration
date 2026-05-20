@@ -20,6 +20,9 @@ $env:LC_ALL = "en_US.UTF-8"
 $env:PYTHONIOENCODING = "utf-8"
 $env:PYTHONUTF8 = "1"
 
+# ========== 工具路径设置 ==========
+$Env:EMULATOR_PATH = "D:\Soft\leidian\LDPlayer9\dnplayer.exe"
+
 # ========== 目录定义 ==========
 
 $BaseDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "PowerShell"
