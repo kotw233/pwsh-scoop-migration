@@ -395,7 +395,7 @@ function Test-RebuiltApk {
     $apkDir = [IO.Path]::GetDirectoryName($ApkPath)
     $baseName = [IO.Path]::GetFileNameWithoutExtension($ApkPath)
 
-    # 反编译 → 修改 app_name → 重编译
+    # 反编译 → 修改 → 重编译
     if (-not $NoModify) {
         $decompiledDir = Join-Path $apkDir "${baseName}_tamper"
         Write-Host "[1/3] 反编译..." -ForegroundColor Cyan
@@ -403,25 +403,64 @@ function Test-RebuiltApk {
         & apktool d $ApkPath -o $decompiledDir -f
         if ($LASTEXITCODE -ne 0) { Write-Error "反编译失败"; return }
 
-        Write-Host "[2/3] 修改 app_name..." -ForegroundColor Cyan
-        $stringsFiles = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File |
-            Where-Object { $_.DirectoryName -match "values$" }
-        if (-not $stringsFiles) {
-            $stringsFiles = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File
-        }
+        Write-Host "[2/3] 修改资源..." -ForegroundColor Cyan
 
-        $modified = $false
-        foreach ($file in $stringsFiles) {
+        # 策略1: 修改所有 strings.xml 中的 app_name
+        $allStrings = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File
+        $nameModified = $false
+        foreach ($file in $allStrings) {
             $content = Get-Content $file.FullName -Raw -Encoding UTF8
             if ($content -match 'name="app_name"') {
+                $oldVal = [regex]::Match($content, 'name="app_name"[^>]*>([^<]+)').Groups[1].Value
                 $newContent = $content -replace '(name="app_name"[^>]*>)([^<]+)(</string>)', "`$1`$2$AppNameSuffix`$3"
                 Set-Content -Path $file.FullName -Value $newContent -Encoding UTF8 -NoNewline
-                Write-Host "  已修改: $($file.Name)" -ForegroundColor Green
-                $modified = $true
-                break
+                $newVal = [regex]::Match($newContent, 'name="app_name"[^>]*>([^<]+)').Groups[1].Value
+                $relPath = $file.FullName.Replace($decompiledDir, "").TrimStart("\")
+                Write-Host "  [$relPath]" -ForegroundColor Gray
+                Write-Host "    app_name: $oldVal -> $newVal" -ForegroundColor Yellow
+                $nameModified = $true
             }
         }
-        if (-not $modified) { Write-Warning "未找到 app_name" }
+
+        # 策略2: app_name 没找到，改 versionCode
+        if (-not $nameModified) {
+            Write-Host "  未找到 app_name，尝试修改 versionCode..." -ForegroundColor Yellow
+            $apktoolYml = Join-Path $decompiledDir "apktool.yml"
+            if (Test-Path $apktoolYml) {
+                $yml = Get-Content $apktoolYml -Raw -Encoding UTF8
+                if ($yml -match 'versionCode:\s*(\d+)') {
+                    $oldVer = $Matches[1]
+                    $newVer = [int]$oldVer + 1
+                    $yml = $yml -replace "(versionCode:\s*)\d+", "`$1$newVer"
+                    Set-Content -Path $apktoolYml -Value $yml -Encoding UTF8 -NoNewline
+                    Write-Host "  [apktool.yml]" -ForegroundColor Gray
+                    Write-Host "    versionCode: $oldVer -> $newVer" -ForegroundColor Yellow
+                    $nameModified = $true
+                }
+            }
+        }
+
+        # 策略3: 改 versionName
+        if (-not $nameModified) {
+            Write-Host "  versionCode 也没找到，尝试修改 versionName..." -ForegroundColor Yellow
+            $apktoolYml = Join-Path $decompiledDir "apktool.yml"
+            if (Test-Path $apktoolYml) {
+                $yml = Get-Content $apktoolYml -Raw -Encoding UTF8
+                if ($yml -match "versionName:\s*'([^']+)'") {
+                    $oldVer = $Matches[1]
+                    $newVer = "${oldVer}-mod"
+                    $yml = $yml -replace "(versionName:\s*')[^']+(')", "`$1$newVer`$2"
+                    Set-Content -Path $apktoolYml -Value $yml -Encoding UTF8 -NoNewline
+                    Write-Host "  [apktool.yml]" -ForegroundColor Gray
+                    Write-Host "    versionName: $oldVer -> $newVer" -ForegroundColor Yellow
+                    $nameModified = $true
+                }
+            }
+        }
+
+        if (-not $nameModified) {
+            Write-Warning "所有修改策略均失败，跳过修改"
+        }
 
         Write-Host "[3/3] 重编译..." -ForegroundColor Cyan
         $rebuiltApk = Join-Path $apkDir "${baseName}_tamper.apk"
