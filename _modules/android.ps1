@@ -400,7 +400,7 @@ function Test-RebuiltApk {
         $decompiledDir = Join-Path $apkDir "${baseName}_tamper"
         Write-Host "[1/3] 反编译..." -ForegroundColor Cyan
         if (Test-Path $decompiledDir) { Remove-Item $decompiledDir -Recurse -Force }
-        & apktool d $ApkPath -o $decompiledDir -f 2>&1 | Out-Null
+        & apktool d $ApkPath -o $decompiledDir -f
         if ($LASTEXITCODE -ne 0) { Write-Error "反编译失败"; return }
 
         Write-Host "[2/3] 修改 app_name..." -ForegroundColor Cyan
@@ -426,7 +426,7 @@ function Test-RebuiltApk {
         Write-Host "[3/3] 重编译..." -ForegroundColor Cyan
         $rebuiltApk = Join-Path $apkDir "${baseName}_tamper.apk"
         if (Test-Path $rebuiltApk) { Remove-Item $rebuiltApk -Force }
-        & apktool b $decompiledDir -o $rebuiltApk 2>&1 | Out-Null
+        & apktool b $decompiledDir -o $rebuiltApk
         if ($LASTEXITCODE -ne 0) { Write-Error "重编译失败"; return }
 
         Remove-Item $decompiledDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -440,7 +440,7 @@ function Test-RebuiltApk {
     Copy-Item $ApkPath $signedApk -Force
     & 7z d $signedApk "META-INF\*" -r -y 2>$null
     $keystorePath = "$env:USERPROFILE\.android\debug.p12"
-    & apksigner sign --ks $keystorePath --ks-key-alias androiddebugkey --ks-pass "pass:android" --out $signedApk $signedApk 2>&1 | Out-Null
+    & apksigner sign --ks $keystorePath --ks-key-alias androiddebugkey --ks-pass "pass:android" --out $signedApk $signedApk
     if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
     Write-Host "✓ 签名完成: $signedApk" -ForegroundColor Green
 
@@ -450,7 +450,7 @@ function Test-RebuiltApk {
         if ($adb) {
             $devices = & $adb devices | Where-Object { $_ -match "device$" }
             if ($devices) {
-                & $adb install -r $signedApk 2>&1 | Out-Null
+                & $adb install -r $signedApk
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "✓ 安装成功" -ForegroundColor Green
                     if (-not $NoModify) {
