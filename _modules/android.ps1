@@ -307,7 +307,6 @@ Set-Alias -Name signapk -Value Sign-Apk -Scope Global
 Set-Alias -Name testapk -Value Test-RebuiltApk -Scope Global
 Set-Alias -Name testemu -Value Test-EmulatorApk -Scope Global
 Set-Alias -Name testlib -Value Test-ApkLib -Scope Global
-Set-Alias -Name testtamper -Value Test-RepackageTamper -Scope Global
 
 # ========== 反编译/重编译/签名 ==========
 
@@ -366,7 +365,14 @@ function Sign-Apk {
     $signedPath = Join-Path $file.DirectoryName "$($file.BaseName)_signed$($file.Extension)"
     
     Copy-Item $Path $signedPath -Force
-    & 7z d $signedPath "META-INF\*" -r -y 2>$null
+
+    # 检测已有签名并删除
+    $zipContents = & 7z l $signedPath 2>&1
+    if ($zipContents -match "META-INF/") {
+        Write-Host "检测到已有签名，正在清除..." -ForegroundColor Yellow
+        & 7z d $signedPath "META-INF\*" -r -y 2>$null
+    }
+    
     & apksigner sign --ks $KeystorePath --ks-key-alias $Alias --ks-pass "pass:$StorePass" --out $signedPath $signedPath
     
     Write-Host "✓ 签名完成: $signedPath" -ForegroundColor Green
@@ -375,11 +381,95 @@ function Sign-Apk {
 # ========== 自动化测试 ==========
 
 function Test-RebuiltApk {
-    param([Parameter(Mandatory)][string]$ApkPath)
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$ApkPath,
+        [string]$AppNameSuffix,
+        [switch]$NoInstall
+    )
+
     $ApkPath = Resolve-ValidPath $ApkPath
     if (-not $ApkPath) { return }
-    $BaseDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "PowerShell"
-    & "$BaseDir\_modules\Test-RebuiltApk.ps1" -install -screenshot -force -apkPath $ApkPath
+
+    $apkDir = [IO.Path]::GetDirectoryName($ApkPath)
+    $baseName = [IO.Path]::GetFileNameWithoutExtension($ApkPath)
+
+    # 如果指定了 AppNameSuffix，先反编译修改 app_name
+    if ($AppNameSuffix) {
+        $decompiledDir = Join-Path $apkDir "${baseName}_tamper"
+        Write-Host "[1/3] 反编译..." -ForegroundColor Cyan
+        if (Test-Path $decompiledDir) { Remove-Item $decompiledDir -Recurse -Force }
+        & apktool d $ApkPath -o $decompiledDir -f 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { Write-Error "反编译失败"; return }
+
+        Write-Host "[2/3] 修改 app_name..." -ForegroundColor Cyan
+        $stringsFiles = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File |
+            Where-Object { $_.DirectoryName -match "values$" }
+        if (-not $stringsFiles) {
+            $stringsFiles = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File
+        }
+
+        $modified = $false
+        foreach ($file in $stringsFiles) {
+            $content = Get-Content $file.FullName -Raw -Encoding UTF8
+            if ($content -match 'name="app_name"') {
+                $newContent = $content -replace '(name="app_name"[^>]*>)([^<]+)(</string>)', "`$1`$2$AppNameSuffix`$3"
+                Set-Content -Path $file.FullName -Value $newContent -Encoding UTF8 -NoNewline
+                Write-Host "  已修改: $($file.Name)" -ForegroundColor Green
+                $modified = $true
+                break
+            }
+        }
+        if (-not $modified) { Write-Warning "未找到 app_name" }
+
+        Write-Host "[3/3] 重编译..." -ForegroundColor Cyan
+        $rebuiltApk = Join-Path $apkDir "${baseName}_tamper.apk"
+        if (Test-Path $rebuiltApk) { Remove-Item $rebuiltApk -Force }
+        & apktool b $decompiledDir -o $rebuiltApk 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { Write-Error "重编译失败"; return }
+
+        Remove-Item $decompiledDir -Recurse -Force -ErrorAction SilentlyContinue
+        $ApkPath = $rebuiltApk
+        Write-Host "✓ 重编译完成: $rebuiltApk" -ForegroundColor Green
+    }
+
+    # 签名
+    Write-Host "签名中..." -ForegroundColor Cyan
+    $signedApk = Join-Path $apkDir "${baseName}_$(if ($AppNameSuffix) { 'tamper_' } else { '' })signed.apk"
+    Copy-Item $ApkPath $signedApk -Force
+    & 7z d $signedApk "META-INF\*" -r -y 2>$null
+    $keystorePath = "$env:USERPROFILE\.android\debug.p12"
+    & apksigner sign --ks $keystorePath --ks-key-alias androiddebugkey --ks-pass "pass:android" --out $signedApk $signedApk 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
+    Write-Host "✓ 签名完成: $signedApk" -ForegroundColor Green
+
+    # 安装测试
+    if (-not $NoInstall) {
+        $adb = Get-AdbPath
+        if ($adb) {
+            $devices = & $adb devices | Where-Object { $_ -match "device$" }
+            if ($devices) {
+                & $adb install -r $signedApk 2>&1 | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "✓ 安装成功" -ForegroundColor Green
+                    if ($AppNameSuffix) {
+                        Write-Host "  请检查应用名称是否显示修改后的内容" -ForegroundColor Yellow
+                        Write-Host "  若正常显示 '$AppNameSuffix' 后缀 → 缺少重打包校验" -ForegroundColor Yellow
+                    }
+                } else {
+                    Write-Warning "安装失败"
+                }
+            } else {
+                Write-Warning "未检测到设备，跳过安装"
+            }
+        } else {
+            Write-Warning "adb 未找到，跳过安装"
+        }
+    }
+
+    if ($AppNameSuffix) {
+        Remove-Item (Join-Path $apkDir "${baseName}_tamper.apk") -Force -ErrorAction SilentlyContinue
+    }
 }
 
 function Test-EmulatorApk {
@@ -400,106 +490,6 @@ function Test-ApkLib {
     $params = @{}
     if ($ApkPath) { $params["ApkPath"] = $ApkPath }
     & "$BaseDir\_modules\Test-Lib.ps1" @params
-}
-
-# ========== 重打包篡改测试 ==========
-
-function Test-RepackageTamper {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][string]$ApkPath,
-        [string]$Suffix = " [MODIFIED]",
-        [switch]$NoInstall
-    )
-
-    $ApkPath = Resolve-ValidPath $ApkPath
-    if (-not $ApkPath) { return }
-    if (-not (Test-CommandExists apktool)) { Write-Error "请先安装: scoop install apktool"; return }
-    if (-not (Test-CommandExists apksigner)) { Write-Error "请先安装: scoop install apksigner"; return }
-
-    $apkDir = [IO.Path]::GetDirectoryName($ApkPath)
-    $baseName = [IO.Path]::GetFileNameWithoutExtension($ApkPath)
-    $decompiledDir = Join-Path $apkDir "${baseName}_tamper_test"
-
-    # Step 1: 反编译
-    Write-Host "[1/5] 反编译..." -ForegroundColor Cyan
-    if (Test-Path $decompiledDir) { Remove-Item $decompiledDir -Recurse -Force }
-    & apktool d $ApkPath -o $decompiledDir -f 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) { Write-Error "反编译失败"; return }
-
-    # Step 2: 查找并修改 app_name
-    Write-Host "[2/5] 修改 app_name..." -ForegroundColor Cyan
-    $stringsFiles = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File |
-        Where-Object { $_.DirectoryName -match "values$" }
-    if (-not $stringsFiles) {
-        Write-Warning "未找到 strings.xml，尝试查找所有 values 目录"
-        $stringsFiles = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File
-    }
-    if (-not $stringsFiles) {
-        Write-Error "未找到任何 strings.xml"; return
-    }
-
-    $modified = $false
-    foreach ($file in $stringsFiles) {
-        $content = Get-Content $file.FullName -Raw -Encoding UTF8
-        if ($content -match 'name="app_name"') {
-            $newContent = $content -replace '(name="app_name"[^>]*>)([^<]+)(</string>)', "`$1`$2$Suffix`$3"
-            Set-Content -Path $file.FullName -Value $newContent -Encoding UTF8 -NoNewline
-            Write-Host "  已修改: $($file.FullName)" -ForegroundColor Green
-            $modified = $true
-            break
-        }
-    }
-    if (-not $modified) {
-        Write-Warning "未找到 app_name，跳过名称修改"
-    }
-
-    # Step 3: 重编译
-    Write-Host "[3/5] 重编译..." -ForegroundColor Cyan
-    $rebuiltApk = Join-Path $apkDir "${baseName}_tamper.apk"
-    if (Test-Path $rebuiltApk) { Remove-Item $rebuiltApk -Force }
-    & apktool b $decompiledDir -o $rebuiltApk 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) { Write-Error "重编译失败"; return }
-
-    # Step 4: 签名
-    Write-Host "[4/5] 签名..." -ForegroundColor Cyan
-    $signedApk = Join-Path $apkDir "${baseName}_tamper_signed.apk"
-    $keystorePath = "$env:USERPROFILE\.android\debug.p12"
-    Copy-Item $rebuiltApk $signedApk -Force
-    & 7z d $signedApk "META-INF\*" -r -y 2>$null
-    & apksigner sign --ks $keystorePath --ks-key-alias androiddebugkey --ks-pass "pass:android" --out $signedApk $signedApk 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
-
-    Write-Host "  签名 APK: $signedApk" -ForegroundColor Green
-
-    # Step 5: 安装测试
-    if (-not $NoInstall) {
-        Write-Host "[5/5] 安装并验证..." -ForegroundColor Cyan
-        $adb = Get-AdbPath
-        if ($adb) {
-            $devices = & $adb devices | Where-Object { $_ -match "device$" }
-            if ($devices) {
-                & $adb install -r $signedApk 2>&1 | Out-Null
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host "  安装成功，请检查应用名称是否显示修改后的内容" -ForegroundColor Green
-                    Write-Host "  若正常显示 '$Suffix' 后缀 → 缺少重打包校验" -ForegroundColor Yellow
-                } else {
-                    Write-Warning "安装失败，可能缺少设备或签名不匹配"
-                }
-            } else {
-                Write-Warning "未检测到设备，跳过安装"
-            }
-        } else {
-            Write-Warning "adb 未找到，跳过安装"
-        }
-    }
-
-    # 清理
-    Write-Host "`n清理临时文件..." -ForegroundColor Gray
-    Remove-Item $decompiledDir -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item $rebuiltApk -Force -ErrorAction SilentlyContinue
-
-    Write-Host "`n完成! 签名 APK: $signedApk" -ForegroundColor Green
 }
 
 # ========== 配置 ==========
