@@ -494,7 +494,23 @@ function Test-RebuiltApk {
             Write-Host "安装中..." -ForegroundColor Cyan
             & $adb install -r $signedApk
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "✓ 安装成功，请检查应用信息中的版本号变化" -ForegroundColor Green
+                Write-Host "✓ 安装成功" -ForegroundColor Green
+
+                # 获取包名并启动
+                $badging = & aapt2 dump badging $signedApk 2>&1
+                $pkgName = [regex]::Match($badging, "package:\sname='([^']+)'").Groups[1].Value
+                if ($pkgName) {
+                    Write-Host "启动 $pkgName ..." -ForegroundColor Cyan
+                    & $adb shell monkey -p $pkgName -c android.intent.category.LAUNCHER 1 >$null 2>$null
+                    Start-Sleep -Seconds 3
+
+                    # 截图
+                    $screenshot = "repackage_$(Get-Date -Format 'yyyyMMdd_HHmmss').png"
+                    & $adb shell screencap -p /sdcard/$screenshot
+                    & $adb pull /sdcard/$screenshot $screenshot >$null 2>$null
+                    & $adb shell rm /sdcard/$screenshot >$null 2>$null
+                    Write-Host "✓ 截图已保存: $screenshot" -ForegroundColor Green
+                }
             } else {
                 Write-Warning "安装失败"
             }
