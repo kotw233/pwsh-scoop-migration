@@ -377,8 +377,8 @@ function Sign-Apk {
     if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
     
     Write-Host "✓ 签名完成: $signedPath" -ForegroundColor Green
-    $certInfo = & apksigner verify --print-certs $signedPath 2>&1 | Select-String "V3\.0 Signer DN"
-    if ($certInfo) { Write-Host "  $($certInfo.Line.Trim())" -ForegroundColor Gray }
+    $certInfo = & apksigner verify --print-certs $signedPath 2>&1 | Where-Object { $_ } | Select-Object -First 1
+    if ($certInfo) { Write-Host "  $certInfo" -ForegroundColor Gray }
 }
 
 # ========== 自动化测试 ==========
@@ -484,8 +484,8 @@ function Test-RebuiltApk {
     & apksigner sign --ks $keystorePath --ks-key-alias androiddebugkey --ks-pass "pass:android" --out $signedApk $signedApk
     if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
     Write-Host "✓ 签名完成: $signedApk" -ForegroundColor Green
-    $certInfo = & apksigner verify --print-certs $signedApk 2>&1 | Select-String "V3\.0 Signer DN"
-    if ($certInfo) { Write-Host "  $($certInfo.Line.Trim())" -ForegroundColor Gray }
+    $certInfo = & apksigner verify --print-certs $signedApk 2>&1 | Where-Object { $_ } | Select-Object -First 1
+    if ($certInfo) { Write-Host "  $certInfo" -ForegroundColor Gray }
 
     if (-not $NoModify) {
         Remove-Item (Join-Path $apkDir "${baseName}_tamper.apk") -Force -ErrorAction SilentlyContinue
