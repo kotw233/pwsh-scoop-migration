@@ -415,7 +415,7 @@ function Test-RebuiltApk {
             if ($content -match 'name="app_name"') {
                 $oldVal = [regex]::Match($content, 'name="app_name"[^>]*>([^<]+)').Groups[1].Value
                 $newContent = $content -replace '(name="app_name"[^>]*>)([^<]+)(</string>)', "`$1`$2$AppNameSuffix`$3"
-                Set-Content -Path $file.FullName -Value $newContent -Encoding UTF8 -NoNewline
+                Set-Content -Path $file.FullName -Value $newContent -Encoding UTF8 -NoNewline | Out-Null
                 $newVal = [regex]::Match($newContent, 'name="app_name"[^>]*>([^<]+)').Groups[1].Value
                 $relPath = $file.FullName.Replace($decompiledDir, "").TrimStart("\")
                 Write-Host "  [$relPath]" -ForegroundColor Gray
@@ -449,7 +449,7 @@ function Test-RebuiltApk {
                 $ymlModified = $true
             }
 
-            if ($ymlModified) { Set-Content -Path $apktoolYml -Value $yml -Encoding UTF8 -NoNewline }
+            if ($ymlModified) { Set-Content -Path $apktoolYml -Value $yml -Encoding UTF8 -NoNewline | Out-Null }
         }
 
         Write-Host "[3/3] 重编译..." -ForegroundColor Cyan
