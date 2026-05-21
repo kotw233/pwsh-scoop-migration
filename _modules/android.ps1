@@ -384,7 +384,8 @@ function Test-RebuiltApk {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$ApkPath,
-        [string]$AppNameSuffix,
+        [string]$AppNameSuffix = " [MODIFIED]",
+        [switch]$NoModify,
         [switch]$NoInstall
     )
 
@@ -394,8 +395,8 @@ function Test-RebuiltApk {
     $apkDir = [IO.Path]::GetDirectoryName($ApkPath)
     $baseName = [IO.Path]::GetFileNameWithoutExtension($ApkPath)
 
-    # 如果指定了 AppNameSuffix，先反编译修改 app_name
-    if ($AppNameSuffix) {
+    # 反编译 → 修改 app_name → 重编译
+    if (-not $NoModify) {
         $decompiledDir = Join-Path $apkDir "${baseName}_tamper"
         Write-Host "[1/3] 反编译..." -ForegroundColor Cyan
         if (Test-Path $decompiledDir) { Remove-Item $decompiledDir -Recurse -Force }
@@ -435,7 +436,7 @@ function Test-RebuiltApk {
 
     # 签名
     Write-Host "签名中..." -ForegroundColor Cyan
-    $signedApk = Join-Path $apkDir "${baseName}_$(if ($AppNameSuffix) { 'tamper_' } else { '' })signed.apk"
+    $signedApk = Join-Path $apkDir "${baseName}_$(if (-not $NoModify) { 'tamper_' } else { '' })signed.apk"
     Copy-Item $ApkPath $signedApk -Force
     & 7z d $signedApk "META-INF\*" -r -y 2>$null
     $keystorePath = "$env:USERPROFILE\.android\debug.p12"
@@ -452,7 +453,7 @@ function Test-RebuiltApk {
                 & $adb install -r $signedApk 2>&1 | Out-Null
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "✓ 安装成功" -ForegroundColor Green
-                    if ($AppNameSuffix) {
+                    if (-not $NoModify) {
                         Write-Host "  请检查应用名称是否显示修改后的内容" -ForegroundColor Yellow
                         Write-Host "  若正常显示 '$AppNameSuffix' 后缀 → 缺少重打包校验" -ForegroundColor Yellow
                     }
@@ -467,7 +468,7 @@ function Test-RebuiltApk {
         }
     }
 
-    if ($AppNameSuffix) {
+    if (-not $NoModify) {
         Remove-Item (Join-Path $apkDir "${baseName}_tamper.apk") -Force -ErrorAction SilentlyContinue
     }
 }
