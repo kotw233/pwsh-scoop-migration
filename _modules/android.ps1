@@ -485,6 +485,22 @@ function Test-RebuiltApk {
     $certInfo = & apksigner verify --print-certs $signedApk 2>&1 | Where-Object { $_ } | Select-Object -First 1
     if ($certInfo) { Write-Host "  $certInfo" -ForegroundColor Gray }
 
+    # 安装验证
+    $adb = Get-AdbPath
+    if ($adb) {
+        $devices = & $adb devices | Where-Object { $_ -match "device$" }
+        if ($devices) {
+            Write-Host ""
+            Write-Host "安装中..." -ForegroundColor Cyan
+            & $adb install -r $signedApk
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✓ 安装成功，请检查应用信息中的版本号变化" -ForegroundColor Green
+            } else {
+                Write-Warning "安装失败"
+            }
+        }
+    }
+
     if (-not $NoModify) {
         Remove-Item (Join-Path $apkDir "${baseName}_tamper.apk") -Force -ErrorAction SilentlyContinue
     }
