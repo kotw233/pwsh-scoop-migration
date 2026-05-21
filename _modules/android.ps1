@@ -505,10 +505,10 @@ function Test-RebuiltApk {
                     Start-Sleep -Seconds 3
 
                     # 截图
-                    $screenshot = "repackage_$(Get-Date -Format 'yyyyMMdd_HHmmss').png"
-                    & $adb shell screencap -p /sdcard/$screenshot
-                    & $adb pull /sdcard/$screenshot $screenshot >$null 2>$null
-                    & $adb shell rm /sdcard/$screenshot >$null 2>$null
+                    $screenshot = Join-Path $apkDir "repackage_$(Get-Date -Format 'yyyyMMdd_HHmmss').png"
+                    & $adb shell screencap -p /sdcard/repackage.png
+                    & $adb pull /sdcard/repackage.png $screenshot >$null 2>$null
+                    & $adb shell rm /sdcard/repackage.png >$null 2>$null
                     Write-Host "✓ 截图已保存: $screenshot" -ForegroundColor Green
                 }
             } else {
