@@ -374,8 +374,11 @@ function Sign-Apk {
     }
     
     & apksigner sign --ks $KeystorePath --ks-key-alias $Alias --ks-pass "pass:$StorePass" --out $signedPath $signedPath
+    if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
     
     Write-Host "✓ 签名完成: $signedPath" -ForegroundColor Green
+    $certInfo = & apksigner verify --print-certs $signedPath 2>&1 | Select-String "V3\.0 Signer DN"
+    if ($certInfo) { Write-Host "  $($certInfo.Line.Trim())" -ForegroundColor Gray }
 }
 
 # ========== 自动化测试 ==========
@@ -385,8 +388,7 @@ function Test-RebuiltApk {
     param(
         [Parameter(Mandatory)][string]$ApkPath,
         [string]$AppNameSuffix = " [MODIFIED]",
-        [switch]$NoModify,
-        [switch]$NoInstall
+        [switch]$NoModify
     )
 
     $ApkPath = Resolve-ValidPath $ApkPath
@@ -482,30 +484,8 @@ function Test-RebuiltApk {
     & apksigner sign --ks $keystorePath --ks-key-alias androiddebugkey --ks-pass "pass:android" --out $signedApk $signedApk
     if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
     Write-Host "✓ 签名完成: $signedApk" -ForegroundColor Green
-
-    # 安装测试
-    if (-not $NoInstall) {
-        $adb = Get-AdbPath
-        if ($adb) {
-            $devices = & $adb devices | Where-Object { $_ -match "device$" }
-            if ($devices) {
-                & $adb install -r $signedApk
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host "✓ 安装成功" -ForegroundColor Green
-                    if (-not $NoModify) {
-                        Write-Host "  请检查应用名称是否显示修改后的内容" -ForegroundColor Yellow
-                        Write-Host "  若正常显示 '$AppNameSuffix' 后缀 → 缺少重打包校验" -ForegroundColor Yellow
-                    }
-                } else {
-                    Write-Warning "安装失败"
-                }
-            } else {
-                Write-Warning "未检测到设备，跳过安装"
-            }
-        } else {
-            Write-Warning "adb 未找到，跳过安装"
-        }
-    }
+    $certInfo = & apksigner verify --print-certs $signedApk 2>&1 | Select-String "V3\.0 Signer DN"
+    if ($certInfo) { Write-Host "  $($certInfo.Line.Trim())" -ForegroundColor Gray }
 
     if (-not $NoModify) {
         Remove-Item (Join-Path $apkDir "${baseName}_tamper.apk") -Force -ErrorAction SilentlyContinue
