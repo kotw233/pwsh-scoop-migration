@@ -473,13 +473,23 @@ function Test-RebuiltApk {
         Remove-Item $decompiledDir -Recurse -Force -ErrorAction SilentlyContinue
         $ApkPath = $rebuiltApk
         Write-Host "✓ 重编译完成: $rebuiltApk" -ForegroundColor Green
+        Write-Host ""
+        $output = & aapt2 dump badging $rebuiltApk 2>&1
+        $label = [regex]::Match($output, "application:\slabel='([^']+)'").Groups[1].Value
+        $pkg = [regex]::Match($output, "package:\sname='([^']+)'").Groups[1].Value
+        $ver = [regex]::Match($output, "versionName='([^']+)'").Groups[1].Value
+        $verCode = [regex]::Match($output, "versionCode='([^']+)'").Groups[1].Value
+        Write-Host "  应用名: $label" -ForegroundColor Gray
+        Write-Host "  包名:   $pkg" -ForegroundColor Gray
+        Write-Host "  版本:   $ver ($verCode)" -ForegroundColor Gray
     }
 
     # 签名
+    Write-Host ""
     Write-Host "签名中..." -ForegroundColor Cyan
     $signedApk = Join-Path $apkDir "${baseName}_$(if (-not $NoModify) { 'tamper_' } else { '' })signed.apk"
     Copy-Item $ApkPath $signedApk -Force
-    & 7z d $signedApk "META-INF\*" -r -y 2>$null
+    & 7z d $signedApk "META-INF\*" -r -y >$null 2>$null
     $keystorePath = "$env:USERPROFILE\.android\debug.p12"
     & apksigner sign --ks $keystorePath --ks-key-alias androiddebugkey --ks-pass "pass:android" --out $signedApk $signedApk
     if ($LASTEXITCODE -ne 0) { Write-Error "签名失败"; return }
