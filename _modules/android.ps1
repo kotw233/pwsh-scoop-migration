@@ -6,6 +6,18 @@
     依赖: adb, aapt2, apktool, apksigner, 7z, keytool
 #>
 
+# ========== 辅助函数 ==========
+
+function Resolve-ValidPath {
+    param([Parameter(Mandatory)][string]$Path)
+    $resolved = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $PWD.Path $Path }
+    if (-not (Test-Path $resolved)) {
+        Write-Warning "路径不存在: $resolved"
+        return $null
+    }
+    return $resolved
+}
+
 # ========== 环境初始化 ==========
 
 function Initialize-AndroidEnv {
@@ -39,8 +51,8 @@ function Initialize-AndroidEnv {
 function Get-ApkInfo {
     param([Parameter(Mandatory)][string]$Path)
     
-    $Path = Resolve-Path -Path $Path
-    if (-not (Test-PathEx $Path)) { Write-Warning "文件不存在: $Path"; return }
+    $Path = Resolve-ValidPath $Path
+    if (-not $Path) { return }
     
     $output = & aapt2 dump badging $Path 2>&1
     if ($LASTEXITCODE -ne 0) { throw $output }
@@ -55,23 +67,31 @@ function Get-ApkInfo {
 
 function Get-ApkSignInfo {
     param([Parameter(Mandatory)][string]$Path)
-    & apksigner verify --print-certs-pem (Resolve-Path -Path $Path)
+    $Path = Resolve-ValidPath $Path
+    if (-not $Path) { return }
+    & apksigner verify --print-certs-pem $Path
 }
 
 function Get-JarSignInfo {
     param([Parameter(Mandatory)][string]$Path)
-    & keytool -printcert -jarfile (Resolve-Path -Path $Path)
+    $Path = Resolve-ValidPath $Path
+    if (-not $Path) { return }
+    & keytool -printcert -jarfile $Path
 }
 
 function Get-ApkLibs {
     param([Parameter(Mandatory)][string]$Path)
-    & 7z l (Resolve-Path -Path $Path) | Select-String "\.so$"
+    $Path = Resolve-ValidPath $Path
+    if (-not $Path) { return }
+    & 7z l $Path | Select-String "\.so$"
 }
 
 function Get-ApkProtectInfo {
     param([Parameter(Mandatory)][string]$Path)
     if (Get-Command apkid -ErrorAction SilentlyContinue) {
-        & apkid (Resolve-Path -Path $Path)
+        $Path = Resolve-ValidPath $Path
+        if (-not $Path) { return }
+        & apkid $Path
     } else {
         Write-Warning "apkid 未安装，跳过加固检测"
     }
@@ -89,7 +109,9 @@ function Get-AppObfuscInfo {
         return
     }
     
-    & python $toolPath (Resolve-Path -Path $Path)
+    $Path = Resolve-ValidPath $Path
+    if (-not $Path) { return }
+    & python $toolPath $Path
 }
 
 # ========== ADB APK 提取 ==========
@@ -334,13 +356,17 @@ function Sign-Apk {
         [string]$Alias = "androiddebugkey"
     )
     
-    $Path = Resolve-Path -Path $Path
+    $Path = Resolve-ValidPath $Path
+    if (-not $Path) { return }
+    $KeystorePath = Resolve-ValidPath $KeystorePath
+    if (-not $KeystorePath) { return }
+    
     $file = Get-ChildItem $Path
     $signedPath = Join-Path $file.DirectoryName "$($file.BaseName)_signed$($file.Extension)"
     
     Copy-Item $Path $signedPath -Force
     & 7z d $signedPath "META-INF\*" -r -y 2>$null
-    & apksigner sign --ks (Resolve-Path $KeystorePath) --ks-key-alias $Alias --ks-pass "pass:$StorePass" --out $signedPath $signedPath
+    & apksigner sign --ks $KeystorePath --ks-key-alias $Alias --ks-pass "pass:$StorePass" --out $signedPath $signedPath
     
     Write-Host "✓ 签名完成: $signedPath" -ForegroundColor Green
 }
@@ -349,8 +375,10 @@ function Sign-Apk {
 
 function Test-RebuiltApk {
     param([Parameter(Mandatory)][string]$ApkPath)
+    $ApkPath = Resolve-ValidPath $ApkPath
+    if (-not $ApkPath) { return }
     $BaseDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) "PowerShell"
-    & "$BaseDir\_modules\Test-RebuiltApk.ps1" -install -screenshot -force -apkPath (Resolve-Path $ApkPath)
+    & "$BaseDir\_modules\Test-RebuiltApk.ps1" -install -screenshot -force -apkPath $ApkPath
 }
 
 function Test-EmulatorApk {
