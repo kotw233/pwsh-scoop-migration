@@ -407,9 +407,9 @@ function Test-RebuiltApk {
 
         Write-Host "[2/3] 修改资源..." -ForegroundColor Cyan
 
-        # 策略1: 修改所有 strings.xml 中的 app_name
+        # 改 app_name（所有 strings.xml）
         $allStrings = Get-ChildItem -Path $decompiledDir -Filter "strings.xml" -Recurse -File
-        $nameModified = $false
+        $nameCount = 0
         foreach ($file in $allStrings) {
             $content = Get-Content $file.FullName -Raw -Encoding UTF8
             if ($content -match 'name="app_name"') {
@@ -420,48 +420,36 @@ function Test-RebuiltApk {
                 $relPath = $file.FullName.Replace($decompiledDir, "").TrimStart("\")
                 Write-Host "  [$relPath]" -ForegroundColor Gray
                 Write-Host "    app_name: $oldVal -> $newVal" -ForegroundColor Yellow
-                $nameModified = $true
+                $nameCount++
             }
         }
+        if ($nameCount -eq 0) { Write-Host "  未找到 app_name" -ForegroundColor Yellow }
 
-        # 策略2: app_name 没找到，改 versionCode
-        if (-not $nameModified) {
-            Write-Host "  未找到 app_name，尝试修改 versionCode..." -ForegroundColor Yellow
-            $apktoolYml = Join-Path $decompiledDir "apktool.yml"
-            if (Test-Path $apktoolYml) {
-                $yml = Get-Content $apktoolYml -Raw -Encoding UTF8
-                if ($yml -match 'versionCode:\s*(\d+)') {
-                    $oldVer = $Matches[1]
-                    $newVer = [int]$oldVer + 1
-                    $yml = $yml -replace "(versionCode:\s*)\d+", "`$1$newVer"
-                    Set-Content -Path $apktoolYml -Value $yml -Encoding UTF8 -NoNewline
-                    Write-Host "  [apktool.yml]" -ForegroundColor Gray
-                    Write-Host "    versionCode: $oldVer -> $newVer" -ForegroundColor Yellow
-                    $nameModified = $true
-                }
+        # 改 versionCode + versionName（apktool.yml）
+        $apktoolYml = Join-Path $decompiledDir "apktool.yml"
+        if (Test-Path $apktoolYml) {
+            $yml = Get-Content $apktoolYml -Raw -Encoding UTF8
+            $ymlModified = $false
+
+            if ($yml -match 'versionCode:\s*(\d+)') {
+                $oldVer = $Matches[1]
+                $newVer = [int]$oldVer + 1
+                $yml = $yml -replace "(versionCode:\s*)\d+", "`$1$newVer"
+                Write-Host "  [apktool.yml]" -ForegroundColor Gray
+                Write-Host "    versionCode: $oldVer -> $newVer" -ForegroundColor Yellow
+                $ymlModified = $true
             }
-        }
 
-        # 策略3: 改 versionName
-        if (-not $nameModified) {
-            Write-Host "  versionCode 也没找到，尝试修改 versionName..." -ForegroundColor Yellow
-            $apktoolYml = Join-Path $decompiledDir "apktool.yml"
-            if (Test-Path $apktoolYml) {
-                $yml = Get-Content $apktoolYml -Raw -Encoding UTF8
-                if ($yml -match "versionName:\s*'([^']+)'") {
-                    $oldVer = $Matches[1]
-                    $newVer = "${oldVer}-mod"
-                    $yml = $yml -replace "(versionName:\s*')[^']+(')", "`$1$newVer`$2"
-                    Set-Content -Path $apktoolYml -Value $yml -Encoding UTF8 -NoNewline
-                    Write-Host "  [apktool.yml]" -ForegroundColor Gray
-                    Write-Host "    versionName: $oldVer -> $newVer" -ForegroundColor Yellow
-                    $nameModified = $true
-                }
+            if ($yml -match "versionName:\s*'?([^'`"]+)'?") {
+                $oldName = $Matches[1]
+                $newName = "${oldName}-mod"
+                $yml = $yml -replace "(versionName:\s*'?)[^'`"]+('?)", "`$1$newName`$2"
+                Write-Host "  [apktool.yml]" -ForegroundColor Gray
+                Write-Host "    versionName: $oldName -> $newName" -ForegroundColor Yellow
+                $ymlModified = $true
             }
-        }
 
-        if (-not $nameModified) {
-            Write-Warning "所有修改策略均失败，跳过修改"
+            if ($ymlModified) { Set-Content -Path $apktoolYml -Value $yml -Encoding UTF8 -NoNewline }
         }
 
         Write-Host "[3/3] 重编译..." -ForegroundColor Cyan
